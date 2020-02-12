@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "axios": "^0.19.1",
+    "body-parser": "^1.19.0",
+    "coinbase-pro-trading-toolkit": "^0.4.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.8.6",
+    "morgan": "^1.9.1",
+    "node-cron": "^2.0.3",
+    "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "superagent": "^5.2.1"
+  },
+  "name": "cb-sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "install": "^0.13.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4",
+    "typescriptnpm": "^1.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

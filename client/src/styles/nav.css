@@ -1,0 +1,60 @@
+.Nav ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.Nav ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.Nav li{
+    display: inline-block;
+    margin: 10px 15px 10px 10px;
+    font-size: small;
+}
+
+.Nav a{
+    text-decoration: none;
+    color: rgb(238, 238, 238);
+}
+
+.Nav a:hover,
+.Nav a:active {
+    color: rgb(74, 88, 146);
+    text-decoration: none;
+}
+
+.active {
+    color: 	rgb(230, 230, 230);
+    border-bottom: 4px solid rgb(74, 88, 146);
+}
+
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select:focus,
+textarea {
+  font-size: 16px;
+}
+
+nav{
+    padding:0px;
+    margin:0px;
+}

@@ -1,0 +1,157 @@
+.container{
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: flex-start;
+  }
+
+  .content-row{
+      width: 100%
+  }
+  
+  .fontColor{
+    color: white;
+    font-size: medium;
+  }
+  
+  .master{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+  
+  .purple{
+    background: purple;
+  }
+  .green{
+    background: rgb(43, 62, 126);
+  }
+  .dark{
+    background: rgb(34, 34, 34);
+  }
+
+  .row {
+    vertical-align: middle;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 97%;
+    border: 1px solid rgb(0, 0, 0);
+    margin: 2px 2px 2px 2px;
+    padding: 2px;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+    box-shadow: 1px 1px 1px #000000;
+  }
+  .hrow{
+    font-weight: 750;
+    min-width: 700px;
+    font-size: large;
+    text-align: center;
+    color: rgb(211, 211, 211);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 95%;
+    padding: 2px;
+  }
+  
+  .green{
+    color: rgb(82, 206, 82);
+  }
+  .white{
+    color: white;
+  }
+  
+  .col {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    font-size: small;
+    vertical-align: middle;
+  }
+  
+  .col0 {
+    flex: 1;
+    max-width: 250px;
+    min-width: 150px;
+    vertical-align: middle;
+    margin: auto 0;
+    font-size: 16px;
+  }
+
+  .col1 {
+    flex: 1;
+    max-width: 650px;
+    min-width: 300px;
+    vertical-align: middle;
+    margin: auto 0;
+    font-size: 14px;
+  }
+  
+  .col2 {
+    flex: 4.5;
+    vertical-align: middle;
+    font-size: 16px;
+    margin: auto 0;
+    text-align: center;
+  }
+
+  .col3 {
+    flex: 1;
+    text-align: center;
+    vertical-align: middle;
+
+    }
+
+  .col4 {
+    flex: 1;
+    text-align: center;
+    vertical-align: middle;
+
+    }
+
+.hcol0 {
+    flex: 2.5;
+    vertical-align: middle;
+    margin: auto 0;
+    }
+    
+.hcol2 {
+    flex: 1.5;
+    vertical-align: middle;
+    align-items: center;
+    margin: auto 0;
+}
+.hcol3 {
+    flex: 1;
+    vertical-align: middle;
+    align-items: center;
+    margin: auto 0;
+}
+
+  .center{
+    text-align: center;
+    vertical-align: middle;
+    margin: auto 0px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+  }
+  .small{
+    font-size: 12px;
+  }
+  .large{
+    font-size: 20px;
+  }
+
+  .xlarge{
+    font-size: 60px;
+    text-shadow: 2px 2px #15993d;
+  }
+  .medium{
+    font-size: 16px;
+  }
