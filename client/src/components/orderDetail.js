@@ -9,9 +9,9 @@ const orderList = (props) => {
     console.log(props.order)
     if(props.order.fills.length>0){
         thead = (<><td>Trade ID:</td>
-                <td>Size:</td>
-                <td>Price:</td>
-                <td>Fee:</td></>);
+                <th>Size:</th>
+                <th>Price:</th>
+                <th>Fee:</th></>);
         console.log("building rows...")
         fills = props.order.fills.map((fill,idx) => {
             return (

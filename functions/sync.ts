@@ -13,7 +13,7 @@ import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook'
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { FillFilter } from 'coinbase-pro';
 import axios from 'axios';
-import { Order, Fill } from './interfaces/Order';
+import { Order, Fill } from '../interfaces/Order';
 require('dotenv').config();
 
 module.exports = () => new Promise((resolve,reject)=>{

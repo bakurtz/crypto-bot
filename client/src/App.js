@@ -1,30 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, render, Route, NavLink, Link } from "react-router-dom";
+import Orders from './components/orders';
 import Admin from './components/admin';
 import About from './components/about';
+import Config from './components/config';
 import logo from './logo.svg';
 import Button from 'react-bootstrap/Button';
-import OrderList from './components/orderList';
+
 import './styles/App.css';
 import axios from 'axios';
-import OrderDetail from './components/orderDetail';
+
 import Modal from 'react-responsive-modal';
 import './styles/nav.css';
 
 function App() {
   const [orders, setOrders] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState({});
-  const [showOrderModal, setShowOrderModal] = useState(false);
+
   const [marketPrice, setMarketPrice] = useState(0);
 
-  const closeOrderModal = () =>{
-    setShowOrderModal(false)
-  }
-
-  const clickOrder= (order) => {
-    setShowOrderModal(true);
-    setSelectedOrder(order);
-  }
+  
 
   const placeOrder = (differential) => {
     let instance = axios.create({
@@ -92,8 +86,17 @@ function App() {
           <br /><br />
           {marketPrice === 0 ? "" : "Current BTC Market Price: $"+marketPrice}
           <br /><br />
-          <OrderList orders={orders} click={clickOrder} />
+          <Config />
       </div>
+    )
+  }
+
+  const OrdersDisplay = () => {
+    return (
+      <Orders
+        orders={orders}
+        marketPrice={marketPrice}
+      />
     )
   }
 
@@ -101,56 +104,42 @@ function App() {
     <Router>
     <div className="App">
       <header className="App-header">
-      <nav className="Nav">
-        <ul>
-          <li><NavLink activeStyle={{
-                        fontWeight: "bold",
-                        borderBottomColor: "rgb(74, 88, 146)",
-                        borderBottomWidth: 2,
-                        color: "rgb(238, 238, 238)"
-                      }} to="/">Home</NavLink></li>
-          <li><NavLink activeStyle={{
-            fontWeight: "bold",
-            borderBottomColor: "rgb(74, 88, 146)",
-            borderBottomWidth: 2,
-            color: "rgb(238, 238, 238)"
-          }} to="/admin">Admin</NavLink></li>
-          <li><NavLink activeStyle={{
-                        fontWeight: "bold",
-                        borderBottomColor: "rgb(74, 88, 146)",
-                        borderBottomWidth: 2,
-                        color: "rgb(238, 238, 238)"
-                      }} to="/about">About</NavLink></li>
-        
-        </ul>
-      </nav>
-        <Modal
-          open={showOrderModal}
-          onClose={closeOrderModal}
-          classNames={{
-            overlay: "customOverlay",
-            modal: "customModal"
-          }}
-        >
-          <br /><br />
-          <strong>Order:</strong> <span>{selectedOrder.id}</span><br />
-          <strong>Status:</strong> <span>{selectedOrder.status}</span><br />
-          <strong>Time:</strong> <span>{selectedOrder.time}</span><br />
-          <strong>Price:</strong> <span>{selectedOrder.price}</span><br />
-          <strong>Size:</strong> {Number(selectedOrder.size)}<br />
-          <strong>Percent Filled:</strong><span> {Number(selectedOrder.filled_size) === 0 ? 0 : Number(selectedOrder.size) / Number(selectedOrder.filled_size) * 100} %  </span>
-            
-          <br /><br />
-          <OrderDetail order={selectedOrder}></OrderDetail>
+        <nav className="Nav">
+          <ul>
+            <li><NavLink activeStyle={{
+                          fontWeight: "bold",
+                          borderBottomColor: "rgb(74, 88, 146)",
+                          borderBottomWidth: 2,
+                          color: "rgb(238, 238, 238)"
+                        }} to="/">Home</NavLink></li>
+            <li><NavLink activeStyle={{
+                          fontWeight: "bold",
+                          borderBottomColor: "rgb(74, 88, 146)",
+                          borderBottomWidth: 2,
+                          color: "rgb(238, 238, 238)"
+                        }} to="/orders">Orders</NavLink></li>
+            <li><NavLink activeStyle={{
+                          fontWeight: "bold",
+                          borderBottomColor: "rgb(74, 88, 146)",
+                          borderBottomWidth: 2,
+                          color: "rgb(238, 238, 238)"
+                        }} to="/admin">Admin</NavLink></li>
+            <li><NavLink activeStyle={{
+                          fontWeight: "bold",
+                          borderBottomColor: "rgb(74, 88, 146)",
+                          borderBottomWidth: 2,
+                          color: "rgb(238, 238, 238)"
+                        }} to="/about">About</NavLink></li>
           
-        </Modal>
-        <Route path="/" exact render={()=>HomeDisplay()} />
-        <Route path="/about" exact component={About} />
-        <Route path="/admin" exact component={Admin} />
-        <br /><br /><br />
-        
-        
+          </ul>
+        </nav>
+          <Route path="/" exact render={()=>HomeDisplay()} />
+          <Route path="/orders" exact render={()=>OrdersDisplay()} />
+          <Route path="/about" exact component={About} />
+          <Route path="/admin" exact component={Admin} />
+          <br /><br /><br />
       </header>
+      
     </div>
     </Router>
   );

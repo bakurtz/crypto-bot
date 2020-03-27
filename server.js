@@ -6,9 +6,13 @@ const logger = require('morgan');
 const path = require("path");
 const Order = require('./schemas/Order');
 const Fill = require('./schemas/Fill');
-let placeOrder = require('./orderPlacer.ts');
+let placeOrder = require('./functions/orderPlacer.ts');
+var cron = require('node-cron');
 require('dotenv').config();
 
+cron.schedule('* * * * *', () => {
+    console.log('running a task every minute');
+});
 
 const API_PORT = 3001;
 const app = express();
@@ -143,7 +147,7 @@ router.post('/placeOrder', (req, res) => {
 });
 
 router.post('/syncOrders', (req, res) => {
-    require('./sync.ts')().then(()=>{
+    require('./functions/sync.ts')().then(()=>{
         console.log("WE BACK FMA!")
         return res.json({ success: true, data: null });
         
@@ -186,7 +190,8 @@ router.get('/getCbFills', (req, res) => {
 });
 
 router.get('/getMarketPrice', (req, res) => {
-    require('./getMarketPrice.ts')().then(data=>{
+    console.log("ABC")
+    require('./functions/getMarketPrice.ts')().then(data=>{
         console.log("...price recvd")
         console.log("PRICE: ",data)
         return res.json({ success: true, data: data })
