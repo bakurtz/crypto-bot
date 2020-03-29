@@ -6,12 +6,13 @@ const logger = require('morgan');
 const path = require("path");
 const Order = require('./schemas/Order');
 const Fill = require('./schemas/Fill');
+const Config = require('./schemas/Config');
 let placeOrder = require('./functions/orderPlacer.ts');
 var cron = require('node-cron');
 require('dotenv').config();
 
-cron.schedule('* * * * *', () => {
-    console.log('running a task every minute');
+let cronTask = cron.schedule('* * * * *', () => {
+    console.log('Running task --> initial setup currently running every minute');
 });
 
 const API_PORT = 3001;
@@ -135,7 +136,7 @@ router.post('/updateOrder', (req, res) => {
 });
 
 router.post('/placeOrder', (req, res) => {
-    let differential
+    let differential;
     if(!req.body.params || !req.body.params.differential){
         differential = process.env.BUY_DIFFERENTIAL;
     }
@@ -180,7 +181,6 @@ router.get('/getCbOrder', (req, res) => {
 
 router.get('/getCbFills', (req, res) => {
     require('./serverScripts/getFills.ts')(req.query.orderId).then(data=>{
-        console.log("xxxxxxxxxxxxxxxxxxxxWe got the goods", data)
         return res.json({ success: true, data: data });
     })
     .catch(err=>{
@@ -190,7 +190,6 @@ router.get('/getCbFills', (req, res) => {
 });
 
 router.get('/getMarketPrice', (req, res) => {
-    console.log("ABC")
     require('./functions/getMarketPrice.ts')().then(data=>{
         console.log("...price recvd")
         console.log("PRICE: ",data)
@@ -200,6 +199,62 @@ router.get('/getMarketPrice', (req, res) => {
         console.log(err)
         return res.json({ success: false, error: err });
     });
+});
+
+router.post('/saveConfig', (req, res) => {
+    //Write new config to Mongo DB
+    //Kill existing crontab task
+    //Write new crontab task
+    //Write new order values 
+    let config = req.body.params;
+    console.log(config)
+    if(!config.id) config.id = (new mongoose.Types.ObjectId()).toString();
+    console.log(config)
+    let err = null;
+
+    let query = { _id : new mongoose.Types.ObjectId(config.id) };
+
+    let data = {
+        id: config.id,
+        botEnabled : config.botEnabled,
+        buySize: config.buySize,
+        limitOrderDiff: config.limitOrderDiff,
+        cronValue: config.cronValue
+    }
+
+    Config.findOneAndUpdate({}, { $set : data }, (err, data) => {
+        if (err) return res.json({ success: false, error: err });
+        if(cronTask) cronTask.destroy();
+        if(config.botEnabled){
+            console.log("New cron set as "+ config.cronValue +" ...");
+            cronTask = cron.schedule(config.cronValue, () =>  {
+                console.log("cron value: "+config.cronValue);
+                console.log("new buy of: $"+config.buySize);
+            });
+        }
+        else{
+            console.log("Cron destroyed...")
+        }
+        return res.json({ success: true, data: data })
+    })
+    .catch(err=>{
+        console.log(err)
+        return res.json({ success: false, error: err });
+    });
+});
+
+router.get('/getConfig', (req, res) => {
+    let query = {};
+    let sort = { createdAt : -1 };
+    Config.findOne(query).sort(sort).then((data,err) => {
+        console.log(data)
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true, data: data })
+    })
+    .catch(err=>{
+        console.log(err);
+        return res.json({ success: false, error: err });
+    })
 });
 
 

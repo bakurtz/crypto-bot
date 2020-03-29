@@ -6,10 +6,8 @@ import About from './components/about';
 import Config from './components/config';
 import logo from './logo.svg';
 import Button from 'react-bootstrap/Button';
-
-import './styles/App.css';
 import axios from 'axios';
-
+import './styles/App.css';
 import Modal from 'react-responsive-modal';
 import './styles/nav.css';
 
