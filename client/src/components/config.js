@@ -14,6 +14,9 @@ let cronParser = require('cron-parser');
 
 
 const Config = (props) =>{
+    const [configValues, setConfigValues] = useState({});
+    const [editMode, setEditMode] = useState(false);
+    const [isFetching, setIsFetching] = useState(true);
     const [botEnabled, setBotEnabled] = useState(false);
     const [cronValue, setCronValue] = useState("");
     const [cronValid, setCronValid] = useState(false);
@@ -21,12 +24,23 @@ const Config = (props) =>{
     const [nextCronDate2, setNextCronDate2] = useState("");
     const [buySize, setBuySize] = useState("");
     const [limitOrderDiff, setLimitOrderDiff] = useState("");
-    const [configId, setConfigId] = useState("")
+    const [configId, setConfigId] = useState("");
+    const [minBuySize, setMinBuySize] = useState(Number(process.env.REACT_APP_MIN_BUY_SIZE));
 
     const divStyle = {
         fontSize: "14px",
         color: "white",
         textAlign: "left"
+    }
+
+    const feedbackStyle = {
+        maxWidth: "250px",
+        display: "block"
+    }
+
+    const fixedWidth = {
+        maxWidth: "250px",
+        width: "250px"
     }
 
     useEffect(() =>{
@@ -44,6 +58,7 @@ const Config = (props) =>{
               setLimitOrderDiff(config.limitOrderDiff);
               setConfigId(config._id);
               setBuyDates(config.cronValue);
+              setIsFetching(false);
           })
       },[])
 
@@ -93,86 +108,93 @@ const Config = (props) =>{
     }
 
     
-    const saveChanges = () => {
-        let config = {
-            id: configId,
-            botEnabled,
-            buySize,
-            limitOrderDiff,
-            cronValue
-        }
-
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-          });
-          instance.post('/saveConfig', {params: config}).then((resp) => {
-              console.log(resp);
-          })
-    }
+    const saveChanges = (config) => new Promise(function(resolve, reject) {
+            let instance = axios.create({
+                baseURL: process.env.REACT_APP_API_URL,
+                timeout: 10000,
+                headers: {}
+            });
+            instance.post('/saveConfig', {params: config}).then((resp) => {
+                //We need to get the response and fill the values
+                setEditMode(false);
+                resolve(resp.data.data);
+            })
+        })
 
 
-    let MyTextField1 = ({...props}) => {
-        const [field, meta] = useField(props);
-        const errorText = meta.error && meta.touched ? meta.error : "";
-        console.log(field)
-        return (
-                <Form.Control
-                    required
-                    {...field}
-                    isValid={false}
-                    className="form-control hasError has-error" placeholder="Buy Size (USD $)" 
-                    aria-label="Buy Size" aria-describedby="basic-addon1" 
-                    size="5"/>
-        )
-    }
-
-    
-
-    let config = (
-        <div className="center">
+    let configLayout = (
+        <div className="center" >
             <div className="fontColor center" style={divStyle}>
-            <br />
-            <Switch onChange={()=>handleBotEnabledChange()} checked={botEnabled} /><span>Crypto Bot is <b>Enabled</b></span>
-            <br />
+            <br /><br />
             <Formik
                 initialValues={{
-                    buySize:"a",
-                    limitOrderDiff: "0.0005",
-                    cronValue:"* * * * *"
+                    id: configId,
+                    botEnabled: botEnabled,
+                    buySize:buySize,
+                    limitOrderDiff: limitOrderDiff,
+                    cronValue:cronValue
                 }}
+                enableReinitialize={true}
                 validate={(values) => {
                     const errors = {};
-                    if (values.buySize.length>2){
-                        errors.buySize = "Frick"
+                    var numbers = /^\d*(\.\d+)?$/;
+                    //!values.buySize.match(numbers) || 
+                    if (!values.buySize.toString().match(numbers) || values.buySize < minBuySize){
+                        errors.buySize = "Numbers only. Must be greater than $"+minBuySize+"."
                     }
-                    if (values.buySize2.length>2){
-                        errors.buySize2 = "Frick, b2 is bad"
+                    if (!values.limitOrderDiff.toString().match(numbers) || values.limitOrderDiff <= 0){
+                        errors.limitOrderDiff = "Numbers only. Must be greater than 0%"
                     }
-
+                    
+                    if(!isValidCron(values.cronValue)){
+                        errors.cronValue = "Invalid cron entry. Visit https://crontab.guru/ for help.";
+                    }
                     return errors;
                 }}
                 validateOnChange={true}
+                onSubmit={values => {
+                    saveChanges(values).then((data)=>{
+                        setBotEnabled(data.botEnabled);
+                        setCronValue(data.cronValue);
+                        setBuySize(data.buySize);
+                        setLimitOrderDiff(data.limitOrderDiff);
+                        setConfigId(data._id);
+                        setBuyDates(data.cronValue);
+                        setIsFetching(false);
+                    });
+                }} 
             >   
-                {({ values, errors, handleChange, handleBlur, isValid }) => (
-                    <form onSubmit={(event)=>{event.preventDefault()}} >
-                        <pre style={divStyle}>values: {JSON.stringify(values, null, 2)}</pre>
-                        <pre style={divStyle}>errors: {JSON.stringify(errors, null, 2)}</pre>
-                        
-                        <div className="input-group mb-3">
+                {({ values, dirty, errors, setFieldValue, handleChange, isSubmitting, handleSubmit, isValid }) => (
+                    
+                    <div className="center" style={fixedWidth}> 
+                    
+                        <Button variant="primary" className="fiveSpace"  style={{display: editMode ? "none" : ""}}
+                            type="submit" onClick={()=>setEditMode(!editMode)}> Edit </Button><br />
+                        <span>Crypto Bot is <b>{values.botEnabled ? "ENABLED" : "DISABLED"}</b></span><br />
+                        <Field 
+                            onChange={(e)=>{
+                                setFieldValue("botEnabled", !values.botEnabled);
+                            }}
+                            disabled={!editMode}
+                            type="checkbox" checked={values.botEnabled} name="botEnabled" error={errors} as={Switch}
+                        />
+                        <br />
+                        <br />
+                        <div className="input-group mb-3 ">
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
                                 <FontAwesomeIcon className={"nowrap fas "} icon={faDollarSign} style=""/>  
                             </span>
                             </div>
                             <Field 
-                                type="input" isValid={false} isInvalid={!!errors.buySize} name="buySize" error={errors} onChange={handleChange} as={Form.Control}
+                                disabled={!editMode} 
+                                type="number" isValid={false} 
+                                isInvalid={!!errors.buySize} name="buySize" error={errors} onChange={handleChange} as={Form.Control}
                             />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.buySize}
-                            </Form.Control.Feedback>    
                         </div>
+                        <Form.Control.Feedback style={feedbackStyle} type="invalid">
+                                {errors.buySize}<br />
+                        </Form.Control.Feedback>
 
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
@@ -181,12 +203,15 @@ const Config = (props) =>{
                             </span>
                             </div>
                             <Field 
-                                type="input" isValid={false} isInvalid={!!errors.limitOrderDiff} name="limitOrderDiff" error={errors} onChange={handleChange} as={Form.Control}
+                                disabled={!editMode}
+                                type="number" step="0.1" isValid={false} 
+                                isInvalid={!!errors.limitOrderDiff} name="limitOrderDiff" error={errors} onChange={handleChange} as={Form.Control}
                             />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.buySize}
-                            </Form.Control.Feedback>
+                            
                         </div>
+                        <Form.Control.Feedback style={feedbackStyle} type="invalid">
+                                {errors.limitOrderDiff} <br />
+                            </Form.Control.Feedback>
 
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
@@ -195,70 +220,37 @@ const Config = (props) =>{
                             </span>
                             </div>
                             <Field 
-                                type="input" isValid={isValidCron(values.cronValue)} isInvalid={!isValidCron(values.cronValue)} name="cronValue" error={errors} onChange={handleChange} as={Form.Control}
+                                disabled={!editMode}
+                                type="input" isValid={!errors.cronValue} 
+                                isInvalid={!!errors.cronValue} name="cronValue" error={errors} onChange={handleChange} as={Form.Control}
                             />
-                            <Form.Control.Feedback type="invalid">
-                                {errors.buySize}
-                            </Form.Control.Feedback>
                             
                         </div>
-                    </form>
+                            <Form.Control.Feedback style={feedbackStyle} type="invalid">
+                                {errors.cronValue} <br />
+                            </Form.Control.Feedback>
+                        
+                            <div className={dirty ? "unsaved" : ""} style={fixedWidth}>
+                        <Button variant="primary" className="fiveSpace" style={{display: dirty ? "" : "none"}} disabled={isSubmitting} 
+                            type="submit" onClick={handleSubmit}> Save Changes </Button>
+                        <Button variant="light" className="fiveSpace" style={{display: editMode ? "" : "none"}}
+                            type="submit" onClick={()=>{
+                                setEditMode(!editMode);
+                                setFieldValue("botEnabled",botEnabled);
+                                setFieldValue("buySize",buySize);
+                                setFieldValue("limitOrderDiff",limitOrderDiff);
+                                setFieldValue("cronValue",cronValue);
+                            }}> Cancel </Button></div>
+                        
+                        {/* <pre style={divStyle}>values: {JSON.stringify(values, null, 2)}</pre>
+                        <pre style={divStyle}>errors: {JSON.stringify(errors, null, 2)}</pre> */}
+                    </div>
+                    
                 )}
                 
                 
             </Formik>
-            <form className="">
-                <input type="submit" value="Save" className="btn btn-primary col-sm-offset-3" />
-                <input type="button" value="Reset" className="btn btn-primary col-sm-offset-3" />
-                    <div className="invalid hasError">
-                        
-                        <div className="input-group mb-3">
-                          <div className="input-group-prepend">
-                            <span className="input-group-text" id="basic-addon1">
-                              <FontAwesomeIcon className={"nowrap fas "} icon={faDollarSign} style=""/>  
-                            </span>
-                          </div>
-                          <Form.Control
-                            required
-                            type="text" className="form-control has-error" name="name" placeholder="Buy Size (USD $)" aria-label="Full Name" aria-describedby="basic-addon1" 
-                            size="5" onChange={handleSizeEntry} />
-                      </div>
                       
-                      <div className="form-group has-error">
-                        <div className="input-group mb-3 has-error">
-                          <div className="input-group-prepend has-error">
-                            <span className="input-group-text has-error" id="basic-addon1">
-                              <FontAwesomeIcon className={"nowrap far "} icon={faPercent} style=""/>  
-                            </span>
-                          </div>
-                          <input type="text" className="form-control has-error" required name="Limit-to-Market Differential" placeholder="Limit-to-Market Differential" aria-describedby="basic-addon1"  
-                          value={limitOrderDiff} onChange={handleDifferentialEntry}/>
-                        </div>
-                      </div>
-
-                      <div className="form-group">
-                        <div className="input-group mb-3">
-                          <div className="input-group-prepend">
-                            <span className="input-group-text" id="basic-addon1">
-                              <FontAwesomeIcon className={"nowrap fas "} icon={faClock} style=""/>  
-                            </span>
-                          </div>
-                          <input 
-                            type="text" className="form-control" name="crontab" placeholder="Cron timer" aria-label="Cron timer" aria-describedby="basic-addon1" 
-                            value={cronValue} onChange={handleCronEntry} />
-                      </div>
-                      </div>
-                      
-                      
-                    </div>
-                </form>
-               
-            <br />{cronValid ?
-                    <span> <FontAwesomeIcon className="" color="green" icon={faCheckCircle} /> <a href="#">reset</a> </span> :
-                    <span> <FontAwesomeIcon className="" color="red" icon={faBan} /> <a href="#">reset</a> </span>
-                }
-            <br />
-            <Button variant="success" onClick={saveChanges}>SAVE CHANGES</Button>
             <br />
             <br />
             Preview of next scheduled buys... 
@@ -268,7 +260,9 @@ const Config = (props) =>{
         </div>
     )
 
-  return config;
+    let spinner = (<div className="loader">Loading...</div>)
+
+  return isFetching ? spinner : configLayout;
 
 }
 

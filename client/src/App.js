@@ -76,16 +76,16 @@ function App() {
   },[orders])
 
   const HomeDisplay = () => {
-    return (
-      <div>
-          <Button onClick={()=>placeOrder()}>Place New Order</Button><span> </span> 
-          <Button onClick={syncOrders}>Sync</Button><span> </span>
-          <Button onClick={()=>getMarketPrice()}>Get Market Price</Button> 
-          <br /><br />
-          {marketPrice === 0 ? "" : "Current BTC Market Price: $"+marketPrice}
-          <br /><br />
-          <Config />
-      </div>
+    return (<><Config /></>
+      // <div>
+      //     <Button onClick={()=>placeOrder()}>Place New Order</Button><span> </span> 
+      //     <Button onClick={syncOrders}>Sync</Button><span> </span>
+      //     <Button onClick={()=>getMarketPrice()}>Get Market Price</Button> 
+      //     <br /><br />
+      //     {marketPrice === 0 ? "" : "Current BTC Market Price: $"+marketPrice}
+      //     <br /><br />
+      //     <Config />
+      // </div>
     )
   }
 

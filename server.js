@@ -222,7 +222,7 @@ router.post('/saveConfig', (req, res) => {
         cronValue: config.cronValue
     }
 
-    Config.findOneAndUpdate({}, { $set : data }, (err, data) => {
+    Config.findOneAndUpdate({}, { $set : data }, {new: true}, (err, data) => {
         if (err) return res.json({ success: false, error: err });
         if(cronTask) cronTask.destroy();
         if(config.botEnabled){
