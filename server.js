@@ -207,46 +207,52 @@ router.post('/saveConfig', (req, res) => {
     //Write new crontab task
     //Write new order values 
     let config = req.body.params;
-    console.log(config)
+    
     if(!config.id) config.id = (new mongoose.Types.ObjectId()).toString();
     console.log(config)
     let err = null;
 
-    let query = { _id : new mongoose.Types.ObjectId(config.id) };
-
     let data = {
+        _id: config.id,
         id: config.id,
         botEnabled : config.botEnabled,
         buySize: config.buySize,
         limitOrderDiff: config.limitOrderDiff,
-        cronValue: config.cronValue
+        cronValue: config.cronValue,
+        buyType: config.buyType
     }
+    let options = {new: true, upsert: true, useFindAndModify: false};
 
-    Config.findOneAndUpdate({}, { $set : data }, {new: true}, (err, data) => {
+    Config.model.findOneAndUpdate({}, data, options, (err, data) => {
         if (err) return res.json({ success: false, error: err });
         if(cronTask) cronTask.destroy();
+        let errorText = "";
         if(config.botEnabled){
-            console.log("New cron set as "+ config.cronValue +" ...");
-            cronTask = cron.schedule(config.cronValue, () =>  {
-                console.log("cron value: "+config.cronValue);
-                console.log("new buy of: $"+config.buySize);
-            });
+            if(cron.validate(config.cronValue)){
+                console.log("New cron set as "+ config.cronValue +" ...");
+                cronTask = cron.schedule(config.cronValue, () =>  {
+                    console.log("cron value: "+config.cronValue);
+                    console.log("new buy of: $"+config.buySize);
+                })
+            }
+            else{
+                errorText = "Invalid cron entry."
+                console.log(errorText);
+                return res.json({ success: false, error: errorText });
+            }
         }
         else{
             console.log("Cron destroyed...")
         }
+        console.log(cronTask)
         return res.json({ success: true, data: data })
     })
-    .catch(err=>{
-        console.log(err)
-        return res.json({ success: false, error: err });
-    });
 });
 
 router.get('/getConfig', (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
-    Config.findOne(query).sort(sort).then((data,err) => {
+    Config.model.findOne(query).sort(sort).then((data,err) => {
         console.log(data)
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
