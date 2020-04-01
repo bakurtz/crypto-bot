@@ -12,9 +12,11 @@ const OrderSchema = new Schema(
     id: String,
     price: Number, //big number
     size: Number, //big number
+    totalUsdSpent: Number,
     time: Date,
     productId: String,
     status: String,
+    lastSyncDate: Date,
     profile_id: String,
     side: String,
     type: String,

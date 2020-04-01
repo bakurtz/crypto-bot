@@ -13,17 +13,16 @@ import './styles/nav.css';
 
 function App() {
   const [orders, setOrders] = useState([]);
-
   const [marketPrice, setMarketPrice] = useState(0);
+  const [acctBalance, setAcctBalance] = useState({});
 
-  
+  let instance = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    timeout: 10000,
+    headers: {}
+  });
 
   const placeOrder = (differential) => {
-    let instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
-      timeout: 10000,
-      headers: {}
-    });
     instance.post('/placeOrder', {params: differential}).then((resp) => {
         instance.get('/getAllOrders').then((resp) => {
           //console.log(resp.data.data);
@@ -33,50 +32,61 @@ function App() {
   }
 
   const syncOrders = () => {
-    let instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
-      timeout: 100000,
-      headers: {}
-    });
     instance.post('/syncOrders', {params: null}).then((resp) => {
-        console.log("Sync returned")
-        instance.get('/getAllOrders').then((resp) => {
-          setOrders(resp.data.data);
+      console.log("Sync returned")
+      instance.get('/getAllOrders').then((resp) => {
+        setOrders(resp.data.data);
       })
     })
   }
 
   const getMarketPrice = () => {
-    let instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
-      timeout: 100000,
-      headers: {}
-    });
     instance.get('/getMarketPrice').then((resp) => {
       console.log("Market Price: ",resp.data.data);
       setMarketPrice(resp.data.data);
     })
   }
 
-  useEffect(() =>{
-    let instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
-      timeout: 30000,
-      headers: {}
-    });
+  const getOrders = () => {
     instance.get('/getAllOrders').then((resp) => {
-        setOrders(resp.data.data);
+      setOrders(resp.data.data);
     })
-    instance.get('/getMarketPrice').then((resp) => {
-      setMarketPrice(resp.data.data);
+  }
+
+  const getAccountBalances = () => {
+    instance.get('/getAccountBalances').then((resp) => {
+      console.log("Account Balances: ",resp.data.data);
+      console.log("BTC: "+resp.data.data.btc)
+      console.log("USD: "+resp.data.data.usd)
+      setAcctBalance(resp.data.data);
     })
+  }
+
+  useEffect(() =>{
+    getOrders();
+    getMarketPrice();
+    getAccountBalances();
   },[])
 
-  useEffect(() =>{
-  },[orders])
+  const acctStyle = {
+    fontSize: "16px",
+    color: "white",
+    textAlign: "center"
+  }
+
+  const acctBox= {
+    borderStyle: "solid",
+    borderWidth: "1px",
+    borderColor: "black",
+    padding: "7px",
+    borderRadius: "5px" 
+  }
 
   const HomeDisplay = () => {
-    return (<><Config /></>
+    return (
+      <>
+        <Config />
+      </>
       // <div>
       //     <Button onClick={()=>placeOrder()}>Place New Order</Button><span> </span> 
       //     <Button onClick={syncOrders}>Sync</Button><span> </span>
@@ -93,14 +103,14 @@ function App() {
     return (
       <Orders
         orders={orders}
-        marketPrice={marketPrice}
+        syncOrders={syncOrders}
       />
     )
   }
 
   return (
     <Router>
-    <div className="App">
+    <div className="App center">
       <header className="App-header">
         <nav className="Nav">
           <ul>
@@ -131,12 +141,24 @@ function App() {
           
           </ul>
         </nav>
+      </header>
+          <div style={acctStyle} className="centerFlex max">
+            <div style={acctBox} className="acctBox">
+              <div><strong>Account Balances:</strong></div>
+              <div style={{textAlign:"left"}}>
+                <div >USD: &emsp;${acctBalance.usd ? Number(acctBalance.usd).toFixed(2) : " ..." } </div>
+                <div >BTC: &emsp; {acctBalance.btc ? acctBalance.btc : " ..." }</div>
+                <hr style={{color:"white", padding: "0px", borderTop: "1px solid rgb(150, 150, 150)", margin: "0px"}} />
+                <div className="centerFlex" style={{fontSize:"12px"}}>BTC Market Price: ${marketPrice ? marketPrice : " ..."}</div>
+              </div>
+            </div>
+          </div>
           <Route path="/" exact render={()=>HomeDisplay()} />
           <Route path="/orders" exact render={()=>OrdersDisplay()} />
           <Route path="/about" exact component={About} />
           <Route path="/admin" exact component={Admin} />
           <br /><br /><br />
-      </header>
+      
       
     </div>
     </Router>

@@ -29,6 +29,23 @@ html, body, #root, #root>div {
   color: #61dafb;
 }
 
+.acctBox {
+  margin: auto 0;
+  width: 300px;
+  background-color: #454c58;
+}
+
+.centerFlex{
+  text-align: center;
+  vertical-align: middle;
+  margin: auto 0px;
+  align-items: center;
+  display: block;
+}
+.max{
+  width: 100%;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

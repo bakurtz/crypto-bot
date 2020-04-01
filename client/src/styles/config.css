@@ -12,10 +12,16 @@ form {
 
 #basic-addon1{
     color: "red";
-    background-color: "red";
+    width: 40px;
+    /* background-color: rgb(37, 210, 253);; */
 }
 
-.center{
+input.form-control:disabled, .form-control[readonly]{
+    background-color:rgb(221, 221, 221);
+    color: rgb(56, 56, 56);
+}
+
+.centerFlex{
     text-align: center;
     vertical-align: middle;
     margin: auto 0px;

@@ -9,7 +9,7 @@ const about = (props) =>{
     width:"80%"
   };
   let about = (
-    <div className="center">
+    <div className="centerFlex">
       <div className="fontColor about" style={divStyle}>
         Crypto DCA bot is a Bitcoin trade scheduler powered by the Coinbase Pro API.
          

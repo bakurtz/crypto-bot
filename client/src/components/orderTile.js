@@ -12,12 +12,8 @@ const orderTile = (props) => {
     let d = new Date(props.order.createdAt);
     let newDate= (d.getMonth() + 1) + '/' + d.getDate() + '/' +  d.getFullYear();
     tile = (   
-        <div onClick={props.click} className="master center">   
+        <div onClick={props.click} className="master centerFlex">   
             <div className={color+" fontColor row "} onClick={props.click}>
-                <div className="col1">
-                    {props.order.id}
-                </div>
-
                 <div className="col2">
                     {props.order.size}
                 </div>
@@ -26,7 +22,7 @@ const orderTile = (props) => {
                     {newDate}
                 </div>
 
-                <div className={"col4 center"}>
+                <div className={"col3"}>
                     {props.order.status}
                 </div>
             </div>

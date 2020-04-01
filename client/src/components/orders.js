@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { withRouter  } from "react-router-dom";
 import OrderList from './orderList';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSync } from '@fortawesome/free-solid-svg-icons';
+
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-responsive-modal';
 import OrderDetail from './orderDetail';
@@ -22,8 +25,9 @@ const Orders = (props) =>{
 
     let orders = ( <>
         <br />
-        {props.marketPrice === 0 ? "" : "Current BTC Market Price: $"+props.marketPrice}
-        <br />
+        <Button className="btn-sm" onClick={props.syncOrders}>
+        <FontAwesomeIcon className={"nowrap fas "} icon={faSync} style=""/> 
+          &emsp;Refresh</Button>
         <br />
         <OrderList orders={props.orders} click={clickOrder} />
         

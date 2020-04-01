@@ -8,10 +8,12 @@ const orderList = (props) => {
     let thead = (<></>);
     console.log(props.order)
     if(props.order.fills.length>0){
-        thead = (<><td>Trade ID:</td>
+        thead = (<>
+                <th>Trade ID:</th>
                 <th>Size:</th>
                 <th>Price:</th>
-                <th>Fee:</th></>);
+                <th>Fee:</th>
+                </>);
         console.log("building rows...")
         fills = props.order.fills.map((fill,idx) => {
             return (
@@ -27,7 +29,7 @@ const orderList = (props) => {
     }
     
     return(
-      <div className="center">
+      <div className="center scrolling-wrapper">
           <table>
               <thead>
                   {thead}

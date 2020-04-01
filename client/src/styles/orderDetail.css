@@ -1,6 +1,7 @@
 .customModal {
     background-color: #23272e;
     color: rgb(255, 255, 255);
+    width: 310px;
 }
 
 thead {
@@ -11,3 +12,11 @@ td {
     border: 1px solid rgb(94, 94, 94);
 }
 
+.scrolling-wrapper {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+.card {
+    display: inline-block;
+}

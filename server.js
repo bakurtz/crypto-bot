@@ -47,6 +47,8 @@ router.post('/addOrder', (req, res) => {
         id: o.id,
         price: o.price,//.toFixed(8), //big number
         size: o.size,//.toFixed(8), //big number
+        totalUsdSpent: req.body.dollarAmt,
+        lastSyncDate: new Date(),
         time: o.time,
         productId: o.productId,
         status: o.status,
@@ -142,8 +144,10 @@ router.post('/placeOrder', (req, res) => {
     }
     else{
         let differential = req.body.params.differential;
+        let dollarAmt = req.body.params.buySize;
+        let orderType = req.body.params.orderType;
     }
-    placeOrder(differential);
+    placeOrder(differential, dollarAmt, orderType);
     return res.json({ success: true, data: null });
 });
 
@@ -201,15 +205,21 @@ router.get('/getMarketPrice', (req, res) => {
     });
 });
 
+router.get('/getAccountBalances', (req, res) => {
+    require('./functions/getAccountInfo.ts')().then(data=>{
+        console.log(data)
+        return res.json({ success: true, data: data })
+    })
+    .catch(err=>{
+        console.log(err)
+        return res.json({ success: false, error: err });
+    });
+});
+
 router.post('/saveConfig', (req, res) => {
-    //Write new config to Mongo DB
-    //Kill existing crontab task
-    //Write new crontab task
-    //Write new order values 
     let config = req.body.params;
     
     if(!config.id) config.id = (new mongoose.Types.ObjectId()).toString();
-    console.log(config)
     let err = null;
 
     let data = {
@@ -233,6 +243,7 @@ router.post('/saveConfig', (req, res) => {
                 cronTask = cron.schedule(config.cronValue, () =>  {
                     console.log("cron value: "+config.cronValue);
                     console.log("new buy of: $"+config.buySize);
+                    placeOrder(data.limitOrderDiff, data.buySize, data.buyType);
                 })
             }
             else{
@@ -242,9 +253,9 @@ router.post('/saveConfig', (req, res) => {
             }
         }
         else{
+            cronTask.destroy();
             console.log("Cron destroyed...")
         }
-        console.log(cronTask)
         return res.json({ success: true, data: data })
     })
 });

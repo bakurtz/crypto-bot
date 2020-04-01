@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Switch from "react-switch";
 import { isValidCron } from 'cron-validator';
+import '../styles/config.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDollarSign, faPencilAlt, faClock, faCheckCircle, faBan, faGlobeAmericas, faPercent, faBirthdayCake, faExclamationTriangle, faExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faDollarSign, faPencilAlt, faClock, faCheck, faCheckCircle, faBan, faGlobeAmericas, faPercent, faBirthdayCake, faExclamationTriangle, faExclamation } from '@fortawesome/free-solid-svg-icons';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import Form from 'react-bootstrap/Form';
 import {Formik, Field, useField} from 'formik';
 import axios from 'axios';
-import '../styles/config.css';
 let cronParser = require('cron-parser');
 
 
@@ -18,9 +18,10 @@ const Config = (props) =>{
     const [editMode, setEditMode] = useState(false);
     const [saveErrorMsg, setSaveErrorMsg] = useState("");
     const [saveError, setSaveError] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
     const [botEnabled, setBotEnabled] = useState(false);
-    const [buyType, setBuyType] = useState("Limit");
+    const [buyType, setBuyType] = useState("limit");
     const [cronValue, setCronValue] = useState("1 1 1 1 1");
     const [cronValid, setCronValid] = useState(false);
     const [nextCronDate, setNextCronDate] = useState("");
@@ -59,6 +60,7 @@ const Config = (props) =>{
                 setBotEnabled(config.botEnabled);
                 setCronValue(config.cronValue);
                 setBuySize(config.buySize);
+                setBuyType(config.buyType);
                 setLimitOrderDiff(config.limitOrderDiff);
                 setConfigId(config._id);
                 setBuyDates(config.cronValue);
@@ -99,7 +101,10 @@ const Config = (props) =>{
                 setEditMode(false);
                 setSaveErrorMsg("");
                 setSaveError(false);
+                setSaveSuccess(false);
             }
+            setSaveErrorMsg("Save successful!");
+            setSaveSuccess(true);
             resolve(resp.data.data);
         })
     })
@@ -118,19 +123,25 @@ const Config = (props) =>{
         </span>
     )
 
+    let saveSuccessFeedback = (
+        <span style={{color: "green"}}> 
+            <FontAwesomeIcon className={"nowrap fas "} icon={faCheck} style=""/> 
+            {saveSuccess ? saveErrorMsg : ""}
+        </span>
+    )
+
     
                         
 
 
     let configLayout = (
-        <div className="center" >
+        <div className="centerFlex" >
             <div className="fontColor center" style={divStyle}>
-            <br /><br />
             <Formik
                 initialValues={{
                     id: configId,
                     botEnabled: botEnabled,
-                    buyType: buyType ? buyType : "Limit",
+                    buyType: buyType ? buyType : "limit",
                     buySize: buySize ? buySize : "",
                     limitOrderDiff: limitOrderDiff ? limitOrderDiff : "",
                     cronValue:cronValue ? cronValue : "1 1 1 1 1"
@@ -157,10 +168,8 @@ const Config = (props) =>{
                 {({ values, dirty, errors, setFieldValue, handleChange, setSubmitting, isSubmitting, handleSubmit, isValid }) => (
                     
                     <div className="center" style={fixedWidth}> 
-                    <Button variant="primary" className="fiveSpace"  style={{opacity: editMode ? "0" : ""}}
-                            onClick={()=>setEditMode(!editMode)}> 
-                            <FontAwesomeIcon className="far" icon={ faPencilAlt } />
-                            <span>      Edit</span> </Button><br />
+                        <br />
+                        <br />
                         <span>Crypto Bot is <b>{values.botEnabled ? "ENABLED" : "DISABLED"}</b></span><br />
                         <Field 
                             onChange={(e)=>{
@@ -168,9 +177,7 @@ const Config = (props) =>{
                             }}
                             disabled={!editMode}
                             type="checkbox" checked={values.botEnabled} name="botEnabled" error={errors} as={Switch}
-                        />
-                        <br />
-                        <br />
+                        /><br />
                         <div className="input-group mb-3 ">
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
@@ -210,24 +217,24 @@ const Config = (props) =>{
                                 disabled={!editMode} 
                                 name="buyType"
                                 type="radio"
-                                value="Limit"
+                                value="limit"
                                 label="Limit"
-                                checked={values.buyType=="Limit"}
+                                checked={values.buyType=="limit"}
                                 onChange={handleChange}
                             />
                             <Form.Check inline
                                 disabled={!editMode} 
                                 name="buyType"
                                 type="radio"
-                                value="Market"
+                                value="market"
                                 label="Market"
-                                checked={values.buyType=="Market"}
+                                checked={values.buyType=="market"}
                                 onChange={handleChange}
                             />
                         </div>
                         
 
-                        <div className="input-group mb-3" style={{display: values.buyType=="Market" ? "none" : ""}}>
+                        <div className="input-group mb-3" style={{display: values.buyType=="market" ? "none" : ""}}>
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
                                 <FontAwesomeIcon className={"nowrap fas "} icon={faPercent} style=""/>  
@@ -248,7 +255,17 @@ const Config = (props) =>{
                         
                         { saveError ? saveErrorFeedback : ""}
                         { dirty && !saveError ? unsavedChanges : ""}
+                        { saveSuccess ? saveSuccessFeedback : ""}
                         <br />
+                        <Button variant="primary" className="fiveSpace"  style={{display: editMode ? "none" : ""}}
+                            onClick={()=>{
+                                setEditMode(!editMode);
+                                setSaveSuccess(false);
+                            }}> 
+                            <FontAwesomeIcon className="far" icon={ faPencilAlt } />
+                            <span>      Edit</span> 
+                        </Button>
+                        
                         <Button variant="primary" className="fiveSpace" style={{display: dirty ? "" : "none"}} disabled={isSubmitting} 
                             type="submit" onClick={()=>{
                                 if(Object.keys(errors).length==0){
