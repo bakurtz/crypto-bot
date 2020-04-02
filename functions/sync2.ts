@@ -19,7 +19,13 @@ require('dotenv').config();
 module.exports = () => {
     return new Promise((resolve,reject)=>{
 
-    
+    let newFillDataPromises: any[] = [];
+
+    let foo : [Promise<Aurelia>,Promise<void>] = [aurelia.start(), entityManagerProvider.initialize()];
+    Promise.all(foo).then((results:any[]) => {
+        let aurelia: any = results[0];
+        aurelia.setRoot();
+    });
 
     let openDbOrders: Order[];
     let openCBOrders: LiveOrder[];
@@ -69,7 +75,7 @@ module.exports = () => {
                             console.log("Status CB: "+openCBOrders[i].status)
                             console.log("Found a match. "+dbOrder.status);
                             foundMatch=true;
-                            if(dbOrder.filled_size!=openCBOrders[i].extra.filled_size){
+                            if(dbOrder.filled_size!=openCBOrders[i].extra.filled_size){ // Get ready to update the new fills!
                                 //Need to update fills for this order
                                 console.log("Need to update fills for OrderID: "+dbOrder.id)
                                 let fillFilter: FillFilter = {
@@ -78,6 +84,7 @@ module.exports = () => {
                                 }
                                 
                                 console.log("Fetching fills data for this order...");
+
                                 authClient.getFills(fillFilter).then((fills)=>{ // CALL!
                                     if(fills.length===0){
                                         console.log("No fill data found.");
@@ -90,7 +97,8 @@ module.exports = () => {
                                         instance.post('/addFills',{params: {
                                             fills,
                                             orderId: dbOrder.id
-                                        }}).then((resp) => {  // CALL!
+                                        }})
+                                        .then((resp) => {
                                             console.log("/addFills db write succeeded");
                                             openDbOrders=resp.data.data;
                                             callsComplete++;
@@ -121,10 +129,11 @@ module.exports = () => {
                                     if(newFills.length>0){
                                         //Mismatches found. Write fills to db order
                                         console.log(newFills.length+" mismatches found. Writing to db.");
-                                        instance.post('/addFills',{params: { // CALL! - writeFillsToDB
+                                        instance.post('/addFills',{params: { // CALL!
                                             fills: newFills,
                                             orderId: dbOrder.id
-                                        }}).then((resp) => { // CALL!
+                                        }})
+                                        .then((resp) => {
                                             console.log("/addFills db write succeeded");
                                             openDbOrders=resp.data.data;
                                         })

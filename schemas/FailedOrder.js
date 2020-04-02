@@ -4,9 +4,7 @@ const Schema = mongoose.Schema;
 
 // this will be our data base's data structure 
 
-
-
-const OrderSchema = new Schema(
+const FailedOrderSchema = new Schema(
   {
     _id: String,
     id: String,
@@ -31,11 +29,10 @@ const OrderSchema = new Schema(
     fills: {
       type:[fill.schema],
       default: []
-    },
-    isArchived: Boolean
+    }
   },
   { timestamps: true }
 );
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("Order", OrderSchema);
+module.exports = mongoose.model("FaildOrder", FailedOrderSchema);

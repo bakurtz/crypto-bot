@@ -81,7 +81,7 @@ router.post('/addFills', (req, res) => {
     });
     Order.update(
         { _id: orderId }, 
-        { $push: { fills } },
+        { $push: { fills } , $set: {lastSyncDate: new Date()} },
         (err)=>{
         if(err) return res.json({ success: false, error: err });
         return res.json({ 
@@ -95,8 +95,12 @@ router.post('/addFills', (req, res) => {
 
 
 router.get('/getOpenOrders', (req, res) => {
-    let query = {status: {$ne: "done"}};
+    let query = {};
+    console.log("query ",req.query);
     let sort = { createdAt : -1 };
+    if(req.query.byLastSync==="true") sort = { lastSyncDate: 1 }
+    console.log(sort)
+    query = {status: {$ne: "done"}, isArchived: {$ne: false}};
     Order.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
@@ -106,6 +110,7 @@ router.get('/getOpenOrders', (req, res) => {
 router.get('/getAllOrders', (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
+    console.log(sort);
     Order.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
@@ -123,6 +128,7 @@ router.post('/updateOrder', (req, res) => {
         size: o.size,//.toFixed(8), //big number
         time: o.time,
         status: o.status,
+        lastSyncDate: new Date(),
         profile_id: o.profile_id,
         side: o.side,
         type: o.type,
@@ -131,10 +137,10 @@ router.post('/updateOrder', (req, res) => {
         fill_fees: o.fill_fees,
         filled_size: o.filled_size,
         exectued_value: o.exectued_value
-  },(err, data) => {
-      if (err) return res.json({ success: false, error: err });
-      return res.json({ success: true, data: data })
-  })
+    },(err, data) => {
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true, data: data })
+    })
 });
 
 router.post('/placeOrder', (req, res) => {
@@ -151,11 +157,41 @@ router.post('/placeOrder', (req, res) => {
     return res.json({ success: true, data: null });
 });
 
+router.post('/logFailedOrder', (req, res) => {
+    let o = req.body.order;
+    let myOrder = new FailedOrder({
+        _id: o.id,
+        id: o.id,
+        price: o.price,//.toFixed(8), //big number
+        size: o.size,//.toFixed(8), //big number
+        totalUsdSpent: req.body.dollarAmt,
+        lastSyncDate: new Date(),
+        time: o.time,
+        productId: o.productId,
+        status: o.status,
+        profile_id: o.extra.profile_id,
+        side: o.extra.side,
+        type: o.extra.type,
+        post_only: o.extra.post_only,
+        created_at: o.extra.created_at,
+        fill_fees: o.extra.fill_fees,
+        filled_size: o.extra.filled_size,
+        exectued_value: o.extra.exectued_value,
+        fills: []
+    })
+    myOrder.save((err)=>{
+        if(err) return res.json({ success: false, error: err });
+        return res.json({ 
+            success: true,
+            message: "Written successfully." 
+        });
+    });
+});
+
 router.post('/syncOrders', (req, res) => {
     require('./functions/sync.ts')().then(()=>{
-        console.log("WE BACK FMA!")
+        console.log("~~~~~~~~~~~~~~~~~~~~~WE BACK FMA!~~~~~~~~~~~~~~~~")
         return res.json({ success: true, data: null });
-        
     });
 });
 
@@ -182,6 +218,21 @@ router.get('/getCbOrder', (req, res) => {
         return res.json({ success: false, error: err });
     });
 });
+
+router.post('/archiveOrder', (req, res) => {
+    let o = req.body.params.order;
+    Order.findOneAndUpdate(
+        {id:req.body.params.id},
+        {$set: {
+            lastSyncDate: new Date(),
+            isArchived: true
+            }
+        },
+        (err, data) => {
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true, data: data })
+    })
+})
 
 router.get('/getCbFills', (req, res) => {
     require('./serverScripts/getFills.ts')(req.query.orderId).then(data=>{

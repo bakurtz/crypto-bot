@@ -61,11 +61,29 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
                 order,
                 dollarAmt
             })
-            .then((response) => {console.log("Successful API CALL")})
-            .catch(err => console.log("API CALL FAILED"))
-        }).catch((err: any)=>console.log(err));
+            .then((response) => {console.log("Coinbase order placed, and successful write to local db.")})
+            .catch(err => console.log("Coinbase success, but failed to write order to local DB.",err))
+        }).catch((err: any)=>{
+            console.log(err)
+            let order = buildOrder();
+            instance.post('/logFailedOrder', {
+                order,
+                dollarAmt
+            })
+            .then((response) => {console.log("Failed order. Successful API CALL")})
+            .catch(err => console.log("Attempt to write failed order to DB failed."))
+        });
     })
-    .catch((err)=>console.log(err));
+    .catch((err)=>{
+        console.log(err)
+        let order = buildOrder();
+        instance.post('/logFailedOrder', {
+            order,
+            dollarAmt
+        })
+        .then((response) => {console.log("Failed order. Successful API CALL")})
+        .catch(err => console.log("Attempt to write failed order to DB failed"))
+    });
 
     const buildOrder = () => {
         let otype: OrderType;

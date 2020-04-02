@@ -18,14 +18,25 @@ const coinbaseProConfig: CoinbaseProConfig = {
 };
 
 const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
-coinbasePro.loadBalances().then( (resp) =>{
-    //let y: string = "c331f73c-1a9c-4385-9d55-8316b399c54f";
-    
-    resp[Object.keys(resp)[0]].BTC.balance.toString();
-    resp[Object.keys(resp)[0]].BTC.balance.toNumber();
-    console.log(resp)
-    console.log("BTC: "+resp[Object.keys(resp)[0]].BTC.balance.toString())
-    console.log("BTC: "+resp[Object.keys(resp)[0]].BTC.balance.toNumber())
-    console.log("USD: $"+resp[Object.keys(resp)[0]].USD.balance.toString())
-    console.log("USD: $"+resp[Object.keys(resp)[0]].USD.available.toString())
-})
+
+for(let i=0;i<15;i++){
+    coinbasePro.loadBalances().then( (resp) =>{
+        //let y: string = "c331f73c-1a9c-4385-9d55-8316b399c54f";
+        
+        resp[Object.keys(resp)[0]].BTC.balance.toString();
+        resp[Object.keys(resp)[0]].BTC.balance.toNumber();
+        //console.log(resp)
+        // console.log("BTC: "+resp[Object.keys(resp)[0]].BTC.balance.toString())
+        // console.log("BTC: "+resp[Object.keys(resp)[0]].BTC.balance.toNumber())
+        // console.log("USD: $"+resp[Object.keys(resp)[0]].USD.balance.toString())
+        // console.log("USD: $"+resp[Object.keys(resp)[0]].USD.available.toString())
+    }).catch(err => {
+        //let key = Object.keys(err.response.body)[0]
+        //console.log(key)
+        let errorMessage = JSON.parse(err.response.body).message;
+        console.log(errorMessage)
+        
+        //console.log(err.response.body)
+    })
+}
+

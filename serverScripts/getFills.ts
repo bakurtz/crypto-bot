@@ -29,5 +29,12 @@ module.exports = (id: string) => new Promise((resolve,reject)=>{
     authClient.getFills(fillFilter).then((fills: any)  => {
         resolve(fills);
     })
-    .catch((err: any)=>console.log(err))
+    .catch(err => {
+        //Return error message 
+        let rateLimitError = false;
+        let errorMessage = JSON.parse(err.response.body).message;
+        if(errorMessage.includes("rate limit")) rateLimitError = true;
+        let e = {rateLimitError, errorMessage}
+        console.log(e);
+    })
 })

@@ -23,5 +23,13 @@ module.exports = (id: string) => new Promise((resolve,reject)=>{
         //console.log(order.id+": "+order.status+" "+order.extra.status);
         resolve(order);
     })
-    .catch((err: any) => reject(err))
+    .catch(err => {
+        //Return error message 
+        let rateLimitError = false;
+        let errorMessage = JSON.parse(err.response.body).message;
+        if(errorMessage.includes("rate limit")) rateLimitError = true;
+        let e = {rateLimitError, errorMessage}
+        console.log(e);
+        reject(e)
+    })
 })

@@ -34,9 +34,7 @@ function App() {
   const syncOrders = () => {
     instance.post('/syncOrders', {params: null}).then((resp) => {
       console.log("Sync returned")
-      instance.get('/getAllOrders').then((resp) => {
-        setOrders(resp.data.data);
-      })
+      console.log(resp)
     })
   }
 
@@ -87,15 +85,6 @@ function App() {
       <>
         <Config />
       </>
-      // <div>
-      //     <Button onClick={()=>placeOrder()}>Place New Order</Button><span> </span> 
-      //     <Button onClick={syncOrders}>Sync</Button><span> </span>
-      //     <Button onClick={()=>getMarketPrice()}>Get Market Price</Button> 
-      //     <br /><br />
-      //     {marketPrice === 0 ? "" : "Current BTC Market Price: $"+marketPrice}
-      //     <br /><br />
-      //     <Config />
-      // </div>
     )
   }
 

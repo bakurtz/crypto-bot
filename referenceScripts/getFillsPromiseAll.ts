@@ -6,6 +6,7 @@ import * as CBPTT from 'coinbase-pro-trading-toolkit';
 require('dotenv').config();
 
 const product = "BTC-USD";
+let fillPromises: any[] = [];
 
 let ids: string[] = [
     "fd8eb4b0-7953-402e-bee5-2a7da117bbe1",
@@ -40,21 +41,10 @@ ids.forEach(id=>{
         product_id: product,
         order_id: id
     }
-    authClient.getFills(fillFilter).then((fills: any)  => {
-        fills.forEach( (f: { [key: string]: any[] },idx:number)=> {
-            console.log("--------")
-            //console.log(f)
-            // console.log("OrderID: "+f.order_id);
-            // console.log("FillSize: "+f.size);
-        })
-    })
-    .catch(err => {
-        //Return error message 
-        let rateLimitError = false;
-        let errorMessage = JSON.parse(err.response.body).message;
-        if(errorMessage.includes("rate limit")) rateLimitError = true;
-        let e = {rateLimitError, errorMessage}
-        console.log(e);
-    })
+    fillPromises.push(authClient.getFills(fillFilter))
+    
 })
 }
+Promise.all(fillPromises).then((res: any)  => {
+    console.log(res);
+})

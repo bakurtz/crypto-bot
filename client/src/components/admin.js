@@ -23,7 +23,7 @@ const Admin = (props) =>{
             headers: {}
         });
         instance.get('/getCBOrder', {params: {orderId}}).then((resp) => {   
-            if(resp.data.success === false) setText(resp.data.error.response.body);
+            if(resp.data.success === false && resp.data.error.response) setText(resp.data.error.response.body);
             else{setText("ORDERS: \n" + JSON.stringify(resp.data.data, null, 4))}
         })
     }
