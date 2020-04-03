@@ -19,13 +19,8 @@ require('dotenv').config();
 module.exports = () => {
     return new Promise((resolve,reject)=>{
 
-    let newFillDataPromises: any[] = [];
+    let allCBPromises: any[] = [];
 
-    let foo : [Promise<Aurelia>,Promise<void>] = [aurelia.start(), entityManagerProvider.initialize()];
-    Promise.all(foo).then((results:any[]) => {
-        let aurelia: any = results[0];
-        aurelia.setRoot();
-    });
 
     let openDbOrders: Order[];
     let openCBOrders: LiveOrder[];
@@ -78,79 +73,8 @@ module.exports = () => {
                             if(dbOrder.filled_size!=openCBOrders[i].extra.filled_size){ // Get ready to update the new fills!
                                 //Need to update fills for this order
                                 console.log("Need to update fills for OrderID: "+dbOrder.id)
-                                let fillFilter: FillFilter = {
-                                    product_id: product,
-                                    order_id: dbOrder.id
-                                }
-                                
                                 console.log("Fetching fills data for this order...");
-
-                                authClient.getFills(fillFilter).then((fills)=>{ // CALL!
-                                    if(fills.length===0){
-                                        console.log("No fill data found.");
-                                        return;
-                                    }
-                                    console.log("Fill data found.");
-                                    if( dbOrder.fills.length === 0){
-                                        //add All fills
-                                        console.log("Fills previously not known. Writing to db...");
-                                        instance.post('/addFills',{params: {
-                                            fills,
-                                            orderId: dbOrder.id
-                                        }})
-                                        .then((resp) => {
-                                            console.log("/addFills db write succeeded");
-                                            openDbOrders=resp.data.data;
-                                            callsComplete++;
-                                            areCallsReturned();
-                                        })
-                                        .catch(err => console.log("/addFills db write failed."));
-                                        return;
-                                    }
-                                    
-                                    //Compare CB and DB fills for mismatches
-                                    console.log("Fills found in db. Checking for mistmatches...");
-                                    let match = false;
-                                    let newFills: Fill[];
-                                    for(let i=0;i<fills.length;i++){
-                                        for(let k=0;k<dbOrder.fills.length;k){
-                                            if(fills[i].trade_id === dbOrder.fills[k].trade_id){
-                                                match = true;
-                                                break;
-                                            }
-                                            else{
-                                                match = false;
-                                            }
-                                        }
-                                        if(!match) newFills.push(fills[i]);
-                                        //Check against DB fills
-                                        //If doesn't exist, insert into db
-                                    }
-                                    if(newFills.length>0){
-                                        //Mismatches found. Write fills to db order
-                                        console.log(newFills.length+" mismatches found. Writing to db.");
-                                        instance.post('/addFills',{params: { // CALL!
-                                            fills: newFills,
-                                            orderId: dbOrder.id
-                                        }})
-                                        .then((resp) => {
-                                            console.log("/addFills db write succeeded");
-                                            openDbOrders=resp.data.data;
-                                        })
-                                        .catch(err => console.log("/addFills db write failed."));
-                                    }
-                                    else{
-                                        console.log("No mismatches found.");
-                                    }
-                                    return fills;
-                                }).catch(err => {
-                                    //Return error message 
-                                    let rateLimitError = false;
-                                    let errorMessage = JSON.parse(err.response.body).message;
-                                    if(errorMessage.includes("rate limit")) rateLimitError = true;
-                                    let e = {rateLimitError, errorMessage}
-                                    console.log(e);
-                                });
+                                allCBPromises.push(require('./promiseTypes/fillsPromise.ts')(dbOrder));
                             }
                             break;
                         }
@@ -158,54 +82,9 @@ module.exports = () => {
                     if(!foundMatch){
                         //Never found a match for this DB Order, query CB for Order#
                         console.log("Found no match during true-up. Now querying the Coinbase API for DB Order ID: "+dbOrder.id);
-                        coinbasePro.loadOrder(dbOrder.id).then((order: LiveOrder) => { // CALL!
-                            let o = convertOrderType(order);
-                            console.log("CLOUDN'T MATCH THIS ORDER "+dbOrder.id)
-                            //Grab Fills for this order
-                            instance.post('/updateOrder',{params: {order: o}}).then((resp) => { // CALL!
-                                console.log("Updated Order written to db.");
-                            })
-                            let fillFilter: FillFilter = {
-                                product_id: product,
-                                order_id: dbOrder.id
-                            }
-                            authClient.getFills(fillFilter).then( // CALL!
-                                (fills: any)=>{ 
-                                if(fills && fills.length>0){
-                                    instance.post('/addFills',{params: {
-                                        fills: fills,
-                                        orderId: dbOrder.id
-                                    }})
-                                    .then((resp) => {
-                                        console.log("Added fill data to "+dbOrder.id);
-                                    })
-                                    .catch(err => console.log("updateDbOrder API CALL FAILED"));
-                                }
-                            }).catch(err => {
-                                //Return error message 
-                                let rateLimitError = false;
-                                let errorMessage = JSON.parse(err.response.body).message;
-                                if(errorMessage.includes("rate limit")) rateLimitError = true;
-                                let e = {rateLimitError, errorMessage}
-                                console.log(e);
-                            })
-                            
-                        }).catch(err => {
-                            //Return error message 
-                            
-                            let rateLimitError = false;
-                            let errorMessage = JSON.parse(err.response.body).message;
-                            if(errorMessage.includes("rate limit")) rateLimitError = true;
-                            if(!rateLimitError){
-                                instance.post('/archiveOrder',{params: { // CALL!
-                                    id: dbOrder.id
-                                }}).then((resp)=>{
-                                    console.log("Suspect this order didn't exist. Now it's archived: "+dbOrder.id)
-                                })
-                            }
-                            let e = {rateLimitError, errorMessage}
-                            console.log(e);
-                        })
+                        allCBPromises.push(require('./promiseTypes/orderPromise.ts')(dbOrder))
+
+                        
                     }
                 }
                 else{
@@ -321,29 +200,6 @@ module.exports = () => {
             console.log("No mismatched fills found for order: "+orderId);
         }
         return newFills;
-    }
-
-
-    function convertOrderType(o: LiveOrder){
-        let dbOrder: Order = {
-            _id: o.id,
-            id: o.id,
-            price: Number(o.price),//.toFixed(8), //big number
-            size: Number(o.size),//.toFixed(8), //big number
-            time: o.time,
-            productId: o.productId,
-            status: o.status,
-            profile_id: o.extra.profile_id,
-            side: o.extra.side,
-            type: o.extra.type,
-            post_only: o.extra.post_only,
-            created_at: o.extra.created_at,
-            fill_fees: o.extra.fill_fees,
-            filled_size: o.extra.filled_size,
-            exectued_value: o.extra.exectued_value,
-            fills: null
-        }
-        return dbOrder;
     }
     resolve();
 })}

@@ -189,10 +189,10 @@ router.post('/logFailedOrder', (req, res) => {
 });
 
 router.post('/syncOrders', (req, res) => {
-    require('./functions/sync.ts')().then(()=>{
+    require('./functions/sync3.ts')().then(()=>{
         console.log("~~~~~~~~~~~~~~~~~~~~~WE BACK FMA!~~~~~~~~~~~~~~~~")
         return res.json({ success: true, data: null });
-    });
+    }).catch(err=>{console.log("Failed sync.")});
 });
 
 router.get('/getDbOrder', (req, res) => {
