@@ -6,6 +6,8 @@ const logger = require('morgan');
 const path = require("path");
 const Order = require('./schemas/Order');
 const Fill = require('./schemas/Fill');
+const FailedOrder = require('./schemas/FailedOrder');
+const Log = require('./schemas/Log');
 const Config = require('./schemas/Config');
 let placeOrder = require('./functions/orderPlacer.ts');
 var cron = require('node-cron');
@@ -80,8 +82,8 @@ router.post('/addFills', (req, res) => {
         fills
     });
     Order.update(
-        { _id: orderId }, 
-        { $push: { fills } , $set: {lastSyncDate: new Date()} },
+        { _id: orderId },   
+        { $set: { fills, lastSyncDate: new Date() } },
         (err)=>{
         if(err) return res.json({ success: false, error: err });
         return res.json({ 
@@ -100,7 +102,7 @@ router.get('/getOpenOrders', (req, res) => {
     let sort = { createdAt : -1 };
     if(req.query.byLastSync==="true") sort = { lastSyncDate: 1 }
     console.log(sort)
-    query = {status: {$ne: "done"}, isArchived: {$ne: false}};
+    query = {status: {$ne: "done"}, isArchived: {$ne: true}};
     Order.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
@@ -118,8 +120,19 @@ router.get('/getAllOrders', (req, res) => {
     .catch(err=>console.log(err))
 });
 
+router.get('/getLogs', (req, res) => {
+    let query = {};
+    let sort = { createdAt : -1 };
+    Log.find(query).sort(sort).then((data,err) => {
+        if (err) return res.json({ success: false, error: err });
+        return res.json({ success: true, data: data })
+    })
+    .catch(err=>console.log(err))
+});
+
 router.post('/updateOrder', (req, res) => {
     let o = req.body.params.order;
+    let options = {new: true, upsert: true, useFindAndModify: false};
     Order.findOneAndUpdate({id:req.body.params.order.id},{
       //update
         _id: o.id,
@@ -137,7 +150,7 @@ router.post('/updateOrder', (req, res) => {
         fill_fees: o.fill_fees,
         filled_size: o.filled_size,
         exectued_value: o.exectued_value
-    },(err, data) => {
+    },options,(err, data) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
     })
@@ -159,38 +172,44 @@ router.post('/placeOrder', (req, res) => {
 
 router.post('/logFailedOrder', (req, res) => {
     let o = req.body.order;
-    let myOrder = new FailedOrder({
-        _id: o.id,
-        id: o.id,
-        price: o.price,//.toFixed(8), //big number
-        size: o.size,//.toFixed(8), //big number
-        totalUsdSpent: req.body.dollarAmt,
-        lastSyncDate: new Date(),
-        time: o.time,
-        productId: o.productId,
-        status: o.status,
-        profile_id: o.extra.profile_id,
-        side: o.extra.side,
-        type: o.extra.type,
-        post_only: o.extra.post_only,
-        created_at: o.extra.created_at,
-        fill_fees: o.extra.fill_fees,
-        filled_size: o.extra.filled_size,
-        exectued_value: o.extra.exectued_value,
-        fills: []
-    })
-    myOrder.save((err)=>{
-        if(err) return res.json({ success: false, error: err });
-        return res.json({ 
-            success: true,
-            message: "Written successfully." 
-        });
+    let failedMessage = req.body.failedMessage;
+    let failedOrder = new FailedOrder(
+        { 
+            failedMessage,
+            order: {
+                price: Number(o.price),
+                size: Number(o.size),
+                totalUsdSpent: Number(req.body.dollarAmt),
+                lastSyncDate: new Date(),
+                time: o.time,
+                productId: o.productId
+            }
+        })
+    failedOrder.save((err)=>{
+        if(err){
+            console.log(err);
+            return res.json({ success: false, error: err });
+        }
+        let log = new Log({
+            type: "Failed Order",
+            message: failedMessage,
+            logLevel: "severe",
+            data: JSON.stringify
+        })
+        log.save((err)=>{
+            if(err) return res.json({ success: false, error: err });
+            return res.json({ 
+                success: true,
+                message: "Written successfully." 
+            });
+        })
+        
     });
+    
 });
 
 router.post('/syncOrders', (req, res) => {
-    require('./functions/sync3.ts')().then(()=>{
-        console.log("~~~~~~~~~~~~~~~~~~~~~WE BACK FMA!~~~~~~~~~~~~~~~~")
+    require('./functions/sync-old.ts')().then(()=>{
         return res.json({ success: true, data: null });
     }).catch(err=>{console.log("Failed sync.")});
 });
@@ -209,8 +228,7 @@ router.get('/getDbOrder', (req, res) => {
 
 router.get('/getCbOrder', (req, res) => {
     console.log("ORDERID: ",req.query.orderId)
-    require('./serverScripts/getOrder.ts')(req.query.orderId).then(data=>{
-        console.log("xxxxxxxxxxxxxxxxxxxxWe got the OrderID")
+    require('./functions/getOrder.ts')(req.query.orderId).then(data=>{
         return res.json({ success: true, data: data });
     })
     .catch(err=>{
@@ -221,13 +239,16 @@ router.get('/getCbOrder', (req, res) => {
 
 router.post('/archiveOrder', (req, res) => {
     let o = req.body.params.order;
+    let options = {useFindAndModify: false};
     Order.findOneAndUpdate(
         {id:req.body.params.id},
         {$set: {
             lastSyncDate: new Date(),
-            isArchived: true
+            isArchived: true,
+            status: "archived"
             }
-        },
+        }, 
+        options,
         (err, data) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
@@ -235,7 +256,7 @@ router.post('/archiveOrder', (req, res) => {
 })
 
 router.get('/getCbFills', (req, res) => {
-    require('./serverScripts/getFills.ts')(req.query.orderId).then(data=>{
+    require('./functions/getFills.ts')(req.query.orderId).then(data=>{
         return res.json({ success: true, data: data });
     })
     .catch(err=>{
@@ -246,7 +267,6 @@ router.get('/getCbFills', (req, res) => {
 
 router.get('/getMarketPrice', (req, res) => {
     require('./functions/getMarketPrice.ts')().then(data=>{
-        console.log("...price recvd")
         console.log("PRICE: ",data)
         return res.json({ success: true, data: data })
     })
@@ -258,7 +278,6 @@ router.get('/getMarketPrice', (req, res) => {
 
 router.get('/getAccountBalances', (req, res) => {
     require('./functions/getAccountInfo.ts')().then(data=>{
-        console.log(data)
         return res.json({ success: true, data: data })
     })
     .catch(err=>{
@@ -290,10 +309,7 @@ router.post('/saveConfig', (req, res) => {
         let errorText = "";
         if(config.botEnabled){
             if(cron.validate(config.cronValue)){
-                console.log("New cron set as "+ config.cronValue +" ...");
                 cronTask = cron.schedule(config.cronValue, () =>  {
-                    console.log("cron value: "+config.cronValue);
-                    console.log("new buy of: $"+config.buySize);
                     placeOrder(data.limitOrderDiff, data.buySize, data.buyType);
                 })
             }
@@ -307,7 +323,18 @@ router.post('/saveConfig', (req, res) => {
             cronTask.destroy();
             console.log("Cron destroyed...")
         }
-        return res.json({ success: true, data: data })
+        let log = new Log({
+            type: "Config change",
+            message: "New config saved",
+            logLevel: "low",
+            data: JSON.stringify(config)
+        })
+        log.save((err)=>{
+            if(err) {
+                console.log(err)
+            }
+        })
+        return res.json({ success: true, data: data });
     })
 });
 
@@ -318,10 +345,6 @@ router.get('/getConfig', (req, res) => {
         console.log(data)
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
-    })
-    .catch(err=>{
-        console.log(err);
-        return res.json({ success: false, error: err });
     })
 });
 

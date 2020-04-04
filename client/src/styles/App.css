@@ -25,6 +25,11 @@ html, body, #root, #root>div {
   font-size: calc(10px + 2vmin);
 }
 
+td, th {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .App-link {
   color: #61dafb;
 }

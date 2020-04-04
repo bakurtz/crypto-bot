@@ -12,6 +12,11 @@ require('dotenv').config();
 const logger = CBPTT.utils.ConsoleLoggerFactory();
 const product = "BTC-USD";
 
+console.log(process.env.COINBASE_PRO_API_URL)
+console.log(process.env.COINBASE_PRO_KEY)
+console.log(process.env.COINBASE_PRO_SECRET)
+console.log(process.env.COINBASE_PRO_PASSPHRASE)
+
 const coinbaseProConfig: CoinbaseProConfig = {
     logger: logger,
     apiUrl: process.env.COINBASE_PRO_API_URL,
@@ -70,7 +75,7 @@ module.exports = (id: string) => new Promise((resolve, reject)=>{
         let rateLimitError = false;
         let errorMessage = JSON.parse(err.response.body).message;
         if(errorMessage.includes("rate limit")) rateLimitError = true;
-        if(!rateLimitError){
+        if(!rateLimitError && errorMessage==="NotFound" ){
             instance.post('/archiveOrder',{params: { // CALL!
                 id: id
             }}).then((resp)=>{

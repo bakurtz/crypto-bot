@@ -15,6 +15,7 @@ function App() {
   const [orders, setOrders] = useState([]);
   const [marketPrice, setMarketPrice] = useState(0);
   const [acctBalance, setAcctBalance] = useState({});
+  const [isSyncing, setIsSyncing] = useState(false);
 
   let instance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
@@ -24,17 +25,18 @@ function App() {
 
   const placeOrder = (differential) => {
     instance.post('/placeOrder', {params: differential}).then((resp) => {
-        instance.get('/getAllOrders').then((resp) => {
-          //console.log(resp.data.data);
-          setOrders(resp.data.data);
-      })
+      getOrders();
     })
   }
 
   const syncOrders = () => {
+    setIsSyncing(true);
     instance.post('/syncOrders', {params: null}).then((resp) => {
-      console.log("Sync returned")
-      console.log(resp)
+      getOrders();
+    })
+    .catch(err=>{
+      console.log(err);
+      setIsSyncing(false);
     })
   }
 
@@ -48,6 +50,7 @@ function App() {
   const getOrders = () => {
     instance.get('/getAllOrders').then((resp) => {
       setOrders(resp.data.data);
+      setIsSyncing(false);
     })
   }
 
@@ -93,6 +96,7 @@ function App() {
       <Orders
         orders={orders}
         syncOrders={syncOrders}
+        isSyncing={isSyncing}
       />
     )
   }

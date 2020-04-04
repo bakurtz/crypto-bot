@@ -23,13 +23,16 @@ const Orders = (props) =>{
         setSelectedOrder(order);
     }
 
+    let spinner = (<div className="loader">Loading...</div>)
+
     let orders = ( <>
         <br />
         <Button className="btn-sm" onClick={props.syncOrders}>
         <FontAwesomeIcon className={"nowrap fas "} icon={faSync} style=""/> 
           &emsp;Refresh</Button>
         <br />
-        <OrderList orders={props.orders} click={clickOrder} />
+        { props.isSyncing ? spinner : <OrderList orders={props.orders} click={clickOrder} />}
+        
         
         <Modal
           open={showOrderModal}

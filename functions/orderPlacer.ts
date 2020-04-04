@@ -36,7 +36,7 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
     const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
 
     let instance = axios.create({
-        baseURL: "http://192.168.1.188:3001/api",
+        baseURL: process.env.API_URL,
         timeout: 10000,
         headers: {}
     });
@@ -64,11 +64,13 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
             .then((response) => {console.log("Coinbase order placed, and successful write to local db.")})
             .catch(err => console.log("Coinbase success, but failed to write order to local DB.",err))
         }).catch((err: any)=>{
-            console.log(err)
+            let failedMessage = JSON.parse(err.response.body).message;
+            console.log(failedMessage)
             let order = buildOrder();
             instance.post('/logFailedOrder', {
                 order,
-                dollarAmt
+                dollarAmt,
+                failedMessage
             })
             .then((response) => {console.log("Failed order. Successful API CALL")})
             .catch(err => console.log("Attempt to write failed order to DB failed."))
@@ -76,21 +78,12 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
     })
     .catch((err)=>{
         console.log(err)
-        let order = buildOrder();
-        instance.post('/logFailedOrder', {
-            order,
-            dollarAmt
-        })
-        .then((response) => {console.log("Failed order. Successful API CALL")})
-        .catch(err => console.log("Attempt to write failed order to DB failed"))
     });
 
     const buildOrder = () => {
         let otype: OrderType;
-        console.log("OTYPE:   ", orderTypeInput)
         if(orderTypeInput.toLowerCase()==='limit') otype = 'limit';
         if(orderTypeInput.toLowerCase()==='market') otype = 'market';
-        console.log("OTYPE:   ", otype)
         let orderPrice: number = (marketPrice - (marketPrice * buyDifferential));
         let order: PlaceOrderMessage = {
             time: new Date(),
