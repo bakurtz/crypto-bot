@@ -13,10 +13,6 @@ let placeOrder = require('./functions/orderPlacer.ts');
 var cron = require('node-cron');
 require('dotenv').config();
 
-let cronTask = cron.schedule('* * * * *', () => {
-    console.log('Running task --> initial setup currently running every minute');
-});
-
 const API_PORT = 3001;
 const app = express();
 app.use(cors());
@@ -40,6 +36,43 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, "client", "build")));
+
+//Log Startup
+let log = new Log(
+    {
+        type: "Startup",
+        message: "Crypto bot server is launched.",
+        logLevel: "info",
+        data: ""
+    }
+)
+log.save( err => {
+    if(err) console.log(err)
+})
+
+let cronTask;
+
+//Fetch crontab to initialize
+Config.model.findOne({}).then((data,err) => {
+    let cronValue = data.cronValue;
+    setCron(data);
+    if(cron.validate(cronValue)){
+        cronTask = cron.schedule(cronValue, () => {
+            console.log('Cron job successfully scheduled: '+cronValue);
+            
+        });
+    }
+    else{
+        let log = new Log(
+            {type: "Invalid cron", message: "Invalid cron value: "+cronValue, logLevel: "info", data: cronValue}
+        )
+        log.save( err => {
+            if(err) console.log(err)
+        })
+    }
+})
+
+
 
 
 router.post('/addOrder', (req, res) => {
@@ -193,7 +226,7 @@ router.post('/logFailedOrder', (req, res) => {
         let log = new Log({
             type: "Failed Order",
             message: failedMessage,
-            logLevel: "severe",
+            logLevel: "error",
             data: JSON.stringify
         })
         log.save((err)=>{
@@ -209,7 +242,7 @@ router.post('/logFailedOrder', (req, res) => {
 });
 
 router.post('/syncOrders', (req, res) => {
-    require('./functions/sync-old.ts')().then(()=>{
+    require('./functions/sync.ts')().then(()=>{
         return res.json({ success: true, data: null });
     }).catch(err=>{console.log("Failed sync.")});
 });
@@ -307,22 +340,7 @@ router.post('/saveConfig', (req, res) => {
         if (err) return res.json({ success: false, error: err });
         if(cronTask) cronTask.destroy();
         let errorText = "";
-        if(config.botEnabled){
-            if(cron.validate(config.cronValue)){
-                cronTask = cron.schedule(config.cronValue, () =>  {
-                    placeOrder(data.limitOrderDiff, data.buySize, data.buyType);
-                })
-            }
-            else{
-                errorText = "Invalid cron entry."
-                console.log(errorText);
-                return res.json({ success: false, error: errorText });
-            }
-        }
-        else{
-            cronTask.destroy();
-            console.log("Cron destroyed...")
-        }
+        setCron(config);
         let log = new Log({
             type: "Config change",
             message: "New config saved",
@@ -342,11 +360,42 @@ router.get('/getConfig', (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
     Config.model.findOne(query).sort(sort).then((data,err) => {
-        console.log(data)
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
     })
 });
+
+const setCron = (config) => {
+    if(config.botEnabled){
+        if(cron.validate(config.cronValue)){
+            cronTask = cron.schedule(config.cronValue, () =>  {
+                placeOrder(config.limitOrderDiff, config.buySize, config.buyType);
+                let log = new Log(
+                    {type: "Crontab set", message: "New cron task strarted: "+cronValue,logLevel: "info", data: cronValue}
+                )
+                log.save( err => {
+                    if(err) console.log(err)
+                })
+            })
+        }
+        else{
+            errorText = "Invalid cron entry."
+            console.log(errorText);
+            return res.json({ success: false, error: errorText });
+        }
+    }
+    else{
+        if(cronTask) {
+            cronTask.destroy();
+            let log = new Log(
+                {type: "Crontab destroyed", message: "Cron job destroyed.",logLevel: "info", data: config}
+            )
+            log.save( err => {
+                if(err) console.log(err)
+            })
+        }
+    }
+}
 
 
 

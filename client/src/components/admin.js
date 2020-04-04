@@ -62,12 +62,14 @@ const Admin = (props) =>{
 
     let admin = (
         <div>
-            <div className="filters">
+            <div className="adminSearch centerFlex">
                 <br /><br />
+                <div className="adminSearch centerFlex">
                 Lookup Order: <input onChange={ (ev)=> setOrderId(ev.target.value) } />
                     <Button onClick={()=>{lookupOrder(orderId)}}>Lookup</Button><br />
                 Lookup Fills: <input />
                     <Button onClick={()=>{lookupFills(orderId)}}>Lookup</Button>
+                </div>
                 <br /><br />
                 <br /><br />
                 <LogOutput className="centerFlex" logs={logs} />

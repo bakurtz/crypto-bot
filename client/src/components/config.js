@@ -3,18 +3,15 @@ import Switch from "react-switch";
 import { isValidCron } from 'cron-validator';
 import '../styles/config.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDollarSign, faPencilAlt, faClock, faCheck, faCheckCircle, faBan, faGlobeAmericas, faPercent, faBirthdayCake, faExclamationTriangle, faExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faDollarSign, faPencilAlt, faClock, faCheck, faPercent, faExclamation,faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 import Form from 'react-bootstrap/Form';
-import {Formik, Field, useField} from 'formik';
+import {Formik, Field } from 'formik';
 import axios from 'axios';
 let cronParser = require('cron-parser');
 
 
 const Config = (props) =>{
-    const [configValues, setConfigValues] = useState({});
     const [editMode, setEditMode] = useState(false);
     const [saveErrorMsg, setSaveErrorMsg] = useState("");
     const [saveError, setSaveError] = useState(false);
@@ -23,13 +20,13 @@ const Config = (props) =>{
     const [botEnabled, setBotEnabled] = useState(false);
     const [buyType, setBuyType] = useState("limit");
     const [cronValue, setCronValue] = useState("1 1 1 1 1");
-    const [cronValid, setCronValid] = useState(false);
     const [nextCronDate, setNextCronDate] = useState("");
     const [nextCronDate2, setNextCronDate2] = useState("");
     const [buySize, setBuySize] = useState(10);
     const [limitOrderDiff, setLimitOrderDiff] = useState(1);
     const [configId, setConfigId] = useState("");
-    const [minBuySize, setMinBuySize] = useState(Number(process.env.REACT_APP_MIN_BUY_SIZE));
+
+    let minBuySize = process.env.REACT_APP_MIN_BUY_SIZE;
 
     const divStyle = {
         fontSize: "14px",
@@ -219,7 +216,7 @@ const Config = (props) =>{
                                 type="radio"
                                 value="limit"
                                 label="Limit"
-                                checked={values.buyType=="limit"}
+                                checked={values.buyType==="limit"}
                                 onChange={handleChange}
                             />
                             <Form.Check inline
@@ -228,13 +225,13 @@ const Config = (props) =>{
                                 type="radio"
                                 value="market"
                                 label="Market"
-                                checked={values.buyType=="market"}
+                                checked={values.buyType==="market"}
                                 onChange={handleChange}
                             />
                         </div>
                         
 
-                        <div className="input-group mb-3" style={{display: values.buyType=="market" ? "none" : ""}}>
+                        <div className="input-group mb-3" style={{display: values.buyType==="market" ? "none" : ""}}>
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
                                 <FontAwesomeIcon className={"nowrap fas "} icon={faPercent} style=""/>  

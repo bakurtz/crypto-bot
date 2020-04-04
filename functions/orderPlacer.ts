@@ -10,6 +10,7 @@ import { PlaceOrderMessage } from 'coinbase-pro-trading-toolkit/build/src/core/M
 import { OrderType } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
+const Log = require('../schemas/Log');
 import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';   
 import axios from 'axios';
 
@@ -44,25 +45,30 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
 
 
     coinbasePro.loadMidMarketPrice(product).then((price: BigJS) => {
-        console.log("=============");
-        console.log("Market Price: "+price.toFixed(2));
         console.log("Setting Order Price to: "+(Number(price) - (Number(price) * buyDifferential)).toFixed(2));
-        console.log("=============");
         marketPrice = Number(price.toFixed(8));
     })
     .then(()=>{
         coinbasePro.placeOrder(buildOrder()).then((o: LiveOrder) => {
-            console.log(`Order ${o.id} successfully placed`);
-            console.log(o);
             return coinbasePro.loadOrder(o.id);
         }).then((order: any) => {
-            console.log(`Order status: ${order.status}, ${order.time}`);
             instance.post('/addOrder', {
                 order,
                 dollarAmt
             })
             .then((response) => {console.log("Coinbase order placed, and successful write to local db.")})
             .catch(err => console.log("Coinbase success, but failed to write order to local DB.",err))
+            let log = new Log(
+                {
+                    type: "New order placed",
+                    message: "New order has been placed: "+order.id,
+                    logLevel: "info",
+                    data: JSON.stringify(order)
+                }
+            )
+            log.save( (err: any) => {
+                if(err) console.log(err)
+            })
         }).catch((err: any)=>{
             let failedMessage = JSON.parse(err.response.body).message;
             console.log(failedMessage)

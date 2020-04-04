@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, render, Route, NavLink, Link } from "react-router-dom";
+import { BrowserRouter as Router, render, Route, NavLink } from "react-router-dom";
 import Orders from './components/orders';
 import Admin from './components/admin';
 import About from './components/about';
 import Config from './components/config';
-import logo from './logo.svg';
-import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import './styles/App.css';
-import Modal from 'react-responsive-modal';
 import './styles/nav.css';
 
 function App() {
@@ -23,12 +20,6 @@ function App() {
     headers: {}
   });
 
-  const placeOrder = (differential) => {
-    instance.post('/placeOrder', {params: differential}).then((resp) => {
-      getOrders();
-    })
-  }
-
   const syncOrders = () => {
     setIsSyncing(true);
     instance.post('/syncOrders', {params: null}).then((resp) => {
@@ -42,7 +33,6 @@ function App() {
 
   const getMarketPrice = () => {
     instance.get('/getMarketPrice').then((resp) => {
-      console.log("Market Price: ",resp.data.data);
       setMarketPrice(resp.data.data);
     })
   }

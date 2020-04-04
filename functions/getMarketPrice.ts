@@ -1,12 +1,6 @@
-// import { CoinbaseProExchangeAPI } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProExchangeAPI';
-// import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
-// import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types'; 
-//import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { PublicClient } from 'coinbase-pro';
-//import { PriceLevelFactory } from 'coinbase-pro-trading-toolkit/build/src/lib';
 require('dotenv').config();
 
-//const logger = CBPTT.utils.ConsoleLoggerFactory();
 const product = "BTC-USD";
 
 module.exports = () => new Promise((resolve,reject)=>{
