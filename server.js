@@ -54,8 +54,10 @@ let cronTask;
 
 //Fetch crontab to initialize
 Config.model.findOne({}).then((data,err) => {
-    let cronValue = data.cronValue;
-    setCron(data);
+    if(data && cronValue){
+        let cronValue = data.cronValue;
+        setCron(data);
+    }
 })
 
 
