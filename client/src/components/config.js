@@ -265,7 +265,7 @@ const Config = (props) =>{
                         
                         <Button variant="primary" className="fiveSpace" style={{display: dirty ? "" : "none"}} disabled={isSubmitting} 
                             type="submit" onClick={()=>{
-                                if(Object.keys(errors).length==0){
+                                if(Object.keys(errors).length===0){
                                 saveChanges(values).then((data)=>{
                                     if(data){
                                         setBotEnabled(data.botEnabled);

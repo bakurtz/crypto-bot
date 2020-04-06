@@ -3,11 +3,9 @@ import { withRouter  } from "react-router-dom";
 import OrderList from './orderList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-responsive-modal';
 import OrderDetail from './orderDetail';
-import axios from 'axios';
 import '../styles/admin.css';
 
 

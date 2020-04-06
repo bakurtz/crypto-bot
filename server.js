@@ -56,20 +56,6 @@ let cronTask;
 Config.model.findOne({}).then((data,err) => {
     let cronValue = data.cronValue;
     setCron(data);
-    if(cron.validate(cronValue)){
-        cronTask = cron.schedule(cronValue, () => {
-            console.log('Cron job successfully scheduled: '+cronValue);
-            
-        });
-    }
-    else{
-        let log = new Log(
-            {type: "Invalid cron", message: "Invalid cron value: "+cronValue, logLevel: "info", data: cronValue}
-        )
-        log.save( err => {
-            if(err) console.log(err)
-        })
-    }
 })
 
 
@@ -370,12 +356,12 @@ const setCron = (config) => {
         if(cron.validate(config.cronValue)){
             cronTask = cron.schedule(config.cronValue, () =>  {
                 placeOrder(config.limitOrderDiff, config.buySize, config.buyType);
-                let log = new Log(
-                    {type: "Crontab set", message: "New cron task strarted: "+cronValue,logLevel: "info", data: cronValue}
-                )
-                log.save( err => {
-                    if(err) console.log(err)
-                })
+            })
+            let log = new Log(
+                {type: "Crontab set", message: "New cron task strarted: "+config.cronValue,logLevel: "info", data: config.cronValue}
+            )
+            log.save( err => {
+                if(err) console.log(err)
             })
         }
         else{
@@ -388,7 +374,7 @@ const setCron = (config) => {
         if(cronTask) {
             cronTask.destroy();
             let log = new Log(
-                {type: "Crontab destroyed", message: "Cron job destroyed.",logLevel: "info", data: config}
+                {type: "Crontab destroyed", message: "Cron job destroyed.",logLevel: "info", data: config.cronValue}
             )
             log.save( err => {
                 if(err) console.log(err)
