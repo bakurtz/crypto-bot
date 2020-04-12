@@ -3,7 +3,11 @@ import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 import Orders from './components/orders';
 import Admin from './components/admin';
 import About from './components/about';
+import Register from './components/register';
+import Login from './components/login';
 import Config from './components/config';
+import PrivateRoute from './components/PrivateRoute';
+import AccountBalances from './components/accountBalances';
 import axios from 'axios';
 import './styles/App.css';
 import './styles/nav.css';
@@ -13,6 +17,7 @@ function App() {
   const [marketPrice, setMarketPrice] = useState(0);
   const [acctBalance, setAcctBalance] = useState({});
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   let instance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
@@ -45,12 +50,14 @@ function App() {
   }
 
   const getAccountBalances = () => {
-    instance.get('/getAccountBalances').then((resp) => {
-      console.log("Account Balances: ",resp.data.data);
-      console.log("BTC: "+resp.data.data.btc)
-      console.log("USD: "+resp.data.data.usd)
-      setAcctBalance(resp.data.data);
-    })
+    if(isLoggedIn){
+      instance.get('/getAccountBalances').then((resp) => {
+        console.log("Account Balances: ",resp.data.data);
+        console.log("BTC: "+resp.data.data.btc)
+        console.log("USD: "+resp.data.data.usd)
+        setAcctBalance(resp.data.data);
+      })
+    }
   }
 
   useEffect(() =>{
@@ -59,19 +66,7 @@ function App() {
     getAccountBalances();
   },[])
 
-  const acctStyle = {
-    fontSize: "16px",
-    color: "white",
-    textAlign: "center"
-  }
-
-  const acctBox= {
-    borderStyle: "solid",
-    borderWidth: "1px",
-    borderColor: "black",
-    padding: "7px",
-    borderRadius: "5px" 
-  }
+ 
 
   const HomeDisplay = () => {
     return (
@@ -91,11 +86,12 @@ function App() {
     )
   }
 
-  return (
-    <Router>
-    <div className="App center">
-      <header className="App-header">
-        <nav className="Nav">
+  let accountBalances = () =>{
+    return <AccountBalances acctBalance marketPrice />
+  }
+
+  let nav = (
+    <nav className="Nav">
           <ul>
             <li><NavLink activeStyle={{
                           fontWeight: "bold",
@@ -123,20 +119,19 @@ function App() {
                         }} to="/about">About</NavLink></li>
           
           </ul>
-        </nav>
+    </nav>
+  )
+
+  return (
+    <Router>
+    <div className="App center">
+      <header className="App-header">
+        { isLoggedIn ? nav : "" }
       </header>
-          <div style={acctStyle} className="centerFlex max">
-            <div style={acctBox} className="acctBox">
-              <div><strong>Account Balances:</strong></div>
-              <div style={{textAlign:"left"}}>
-                <div >USD: &emsp;${acctBalance.usd ? Number(acctBalance.usd).toFixed(2) : " ..." } </div>
-                <div >BTC: &emsp; {acctBalance.btc ? acctBalance.btc : " ..." }</div>
-                <hr style={{color:"white", padding: "0px", borderTop: "1px solid rgb(150, 150, 150)", margin: "0px"}} />
-                <div className="centerFlex" style={{fontSize:"12px"}}>BTC Market Price: ${marketPrice ? marketPrice : " ..."}</div>
-              </div>
-            </div>
-          </div>
-          <Route path="/" exact render={()=>HomeDisplay()} />
+          { isLoggedIn ? accountBalances : "" }
+          <PrivateRoute isAuthenticated={false} path="/" exact render={()=>HomeDisplay()} />
+          <Route path="/register" exact render={Register} />
+          <Route path="/login" exact render={Login} />
           <Route path="/orders" exact render={()=>OrdersDisplay()} />
           <Route path="/about" exact component={About} />
           <Route path="/admin" exact component={Admin} />

@@ -4,7 +4,7 @@ import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
 import { FillFilter } from 'coinbase-pro';
 import { AuthenticatedClient } from 'coinbase-pro';
-import { Order } from '../../interfaces/Order';
+import { Order } from '../../../../interfaces/Order';
 import axios from 'axios';
 
 require('dotenv').config();
@@ -50,9 +50,8 @@ module.exports = (id: string) => new Promise((resolve, reject)=>{
         authClient.getFills(fillFilter).then( // CALL!
             (fills: any)=>{ 
             if(fills && fills.length>0){
-                instance.post('/addFills',{params: {
-                    fills: fills,
-                    orderId: id
+                instance.post(`/addFills/${id}`,{params: {
+                    fills: fills
                 }})
                 .then((resp) => {
                     console.log("Added fill data to "+id);
@@ -76,9 +75,7 @@ module.exports = (id: string) => new Promise((resolve, reject)=>{
         let errorMessage = JSON.parse(err.response.body).message;
         if(errorMessage.includes("rate limit")) rateLimitError = true;
         if(!rateLimitError && errorMessage==="NotFound" ){
-            instance.post('/archiveOrder',{params: { // CALL!
-                id: id
-            }}).then((resp)=>{
+            instance.post(`/archiveOrder/${id}`).then((resp)=>{
                 console.log("Suspect this order didn't exist. Now it's archived: "+id)
             })
         }

@@ -10,9 +10,9 @@ import { PlaceOrderMessage } from 'coinbase-pro-trading-toolkit/build/src/core/M
 import { OrderType } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
-const Log = require('../schemas/Log');
 import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';   
 import axios from 'axios';
+const Log = require('../../../server/common/schemas/Log');
 
 
 require('dotenv').config();

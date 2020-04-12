@@ -188,9 +188,7 @@ module.exports = () => {
                             let errorMessage = JSON.parse(err.response.body).message;
                             if(errorMessage.includes("rate limit")) rateLimitError = true;
                             if(!rateLimitError){
-                                instance.post('/archiveOrder',{params: { // CALL!
-                                    id: dbOrder.id
-                                }}).then((resp)=>{
+                                instance.post(`/archiveOrder/${dbOrder.id}`).then((resp)=>{
                                     console.log("Suspect this order didn't exist. Now it's archived: "+dbOrder.id)
                                 })
                             }

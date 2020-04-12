@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Order } from '../interfaces/Order';
+import { Order } from '../../../interfaces/Order';
 require('dotenv').config();
 
 module.exports = () => {

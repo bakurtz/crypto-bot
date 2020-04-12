@@ -2,7 +2,7 @@
 import { AuthenticatedClient } from 'coinbase-pro';
 import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
 import { FillFilter } from 'coinbase-pro';
-import { Order } from '../../interfaces/Order';
+import { Order } from '../../../../interfaces/Order';
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import axios from 'axios';
 require('dotenv').config();
@@ -38,9 +38,8 @@ module.exports = (dbOrder: Order) => new Promise((resolve, reject)=>{
         typedFill.fills = fills;
         if(fills.length>0){
             //add All fills
-            instance.post('/addFills',{params: {
-                fills,
-                orderId: dbOrder.id
+            instance.post(`/addFills/${dbOrder.id}`,{params: {
+                fills
             }})
             .then((resp) => {
                 console.log("Found new fills. /addFills db write failed. "+dbOrder.id);

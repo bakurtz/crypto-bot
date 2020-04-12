@@ -3,9 +3,6 @@ const fill = require('./Fill');
 const Schema = mongoose.Schema;
 
 // this will be our data base's data structure 
-
-
-
 const OrderSchema = new Schema(
   {
     _id: String,
