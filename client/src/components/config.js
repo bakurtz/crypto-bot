@@ -7,8 +7,8 @@ import { faDollarSign, faPencilAlt, faClock, faCheck, faPercent, faExclamation,f
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
-import axios from 'axios';
 import { api } from "../apis/apiCalls";
+import ReactTooltip from "react-tooltip";
 let cronParser = require('cron-parser');
 
 
@@ -47,7 +47,6 @@ const Config = (props) =>{
 
     useEffect(() =>{
           api().get('/profile/getConfig').then((resp) => {
-              console.log(resp.data.data);
               if(!!resp.data.data){ // In case no data exists in DB
                 let config = resp.data.data;
                 setBotEnabled(config.botEnabled);
@@ -59,7 +58,7 @@ const Config = (props) =>{
                 setBuyDates(config.cronValue);
               }
               setIsFetching(false);
-          })
+          }).catch(err=>console.log("Cannot get config.",err))
       },[])
 
     const setBuyDates = (value) => {
@@ -99,21 +98,21 @@ const Config = (props) =>{
 
     let unsavedChanges = (
         <span style={{color: "rgb(253, 203, 37)"}}>
-            <FontAwesomeIcon className={"nowrap fas "} icon={faExclamation} style=""/>  
+            <FontAwesomeIcon className={"nowrap fas "} icon={faExclamation} />  
             <span>  You have unsaved changes.</span>
         </span>
     )
 
     let saveErrorFeedback = (
         <span style={{color: "red"}}> 
-            <FontAwesomeIcon className={"nowrap fas "} icon={faExclamationTriangle} style=""/> 
+            <FontAwesomeIcon className={"nowrap fas "} icon={faExclamationTriangle} /> 
             {saveErrorMsg ? saveErrorMsg : ""}
         </span>
     )
 
     let saveSuccessFeedback = (
         <span style={{color: "green"}}> 
-            <FontAwesomeIcon className={"nowrap fas "} icon={faCheck} style=""/> 
+            <FontAwesomeIcon className={"nowrap fas "} icon={faCheck} /> 
             {saveSuccess ? saveErrorMsg : ""}
         </span>
     )
@@ -157,7 +156,6 @@ const Config = (props) =>{
                     
                     <div className="center" style={fixedWidth}> 
                         <br />
-                        <br />
                         <span>Crypto Bot is <b>{values.botEnabled ? "ENABLED" : "DISABLED"}</b></span><br />
                         <Field 
                             onChange={(e)=>{
@@ -165,19 +163,23 @@ const Config = (props) =>{
                             }}
                             disabled={!editMode}
                             type="checkbox" checked={values.botEnabled} name="botEnabled" error={errors} as={Switch}
-                        /><br />
-                        <div className="input-group mb-3 ">
+                        /><br /><br />
+                        <div className="input-group mb-3 " data-tip="Add a dollar amount <br> you'd like to purchase">
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
-                                <FontAwesomeIcon className={"nowrap fas "} icon={faDollarSign} style=""/>  
+                                <FontAwesomeIcon className={"nowrap fas "} icon={faDollarSign}/>  
+                                
                             </span>
                             </div>
                             <Field 
                                 disabled={!editMode} 
+                                
                                 type="number" isValid={false} 
                                 isInvalid={!!errors.buySize} name="buySize" error={errors} onChange={handleChange} as={Form.Control}
                             />
+                            
                         </div>
+                        <ReactTooltip multiline={true} />
                         <Form.Control.Feedback style={feedbackStyle} type="invalid">
                                 {errors.buySize}<br />
                         </Form.Control.Feedback>
@@ -186,7 +188,7 @@ const Config = (props) =>{
                         <div className="input-group mb-3">
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
-                                <FontAwesomeIcon className={"nowrap fas danger"} icon={faClock} style=""/>  
+                                <FontAwesomeIcon className={"nowrap fas danger"} icon={faClock} />  
                             </span>
                             </div>
                             <Field 
@@ -200,16 +202,7 @@ const Config = (props) =>{
                                 {errors.cronValue} <br />
                             </Form.Control.Feedback>
                         
-                            <div className="input-group mb-3">
-                            <Form.Check inline
-                                disabled={!editMode} 
-                                name="buyType"
-                                type="radio"
-                                value="limit"
-                                label="Limit"
-                                checked={values.buyType==="limit"}
-                                onChange={handleChange}
-                            />
+                            <div className="input-group mb-3 centerFlex">
                             <Form.Check inline
                                 disabled={!editMode} 
                                 name="buyType"
@@ -219,13 +212,22 @@ const Config = (props) =>{
                                 checked={values.buyType==="market"}
                                 onChange={handleChange}
                             />
+                            <Form.Check inline
+                                disabled={!editMode} 
+                                name="buyType"
+                                type="radio"
+                                value="limit"
+                                label="Limit"
+                                checked={values.buyType==="limit"}
+                                onChange={handleChange}
+                            />
                         </div>
                         
 
                         <div className="input-group mb-3" style={{display: values.buyType==="market" ? "none" : ""}}>
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
-                                <FontAwesomeIcon className={"nowrap fas "} icon={faPercent} style=""/>  
+                                <FontAwesomeIcon className={"nowrap fas "} icon={faPercent} />  
                             </span>
                             </div>
                             <Field 

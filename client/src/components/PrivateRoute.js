@@ -1,20 +1,19 @@
 import React from "react";
-import { Route, Redirect, useLocation } from "react-router-dom";
-const AppContext = React.createContext({})
-
-//import { useAppContext } from "../libs/contextLib";
+import { Route, Redirect } from "react-router-dom";
 
 const AuthenticatedRoute = ({ children, ...rest }) => {
-  const { pathname, search } = useLocation();
-  //const { isAuthenticated } = useAppContext();
-  console.log(rest)
+  let isAuthenticated;
+  if(localStorage.getItem("jwt-access-token")){
+    isAuthenticated = true;
+  }
+  
   return (
     <Route {...rest}>
-      {rest.isAuthenticated ? (
+      {isAuthenticated ? (
         children
       ) : (
         <Redirect to={
-          `/login?redirect=${pathname}${search}`
+          "/login"
         } />
       )}
     </Route>

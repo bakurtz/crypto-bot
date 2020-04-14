@@ -21,10 +21,11 @@
     "react-responsive-modal": "^4.0.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
-    "react-switch": "^5.0.1"
+    "react-switch": "^5.0.1",
+    "react-tooltip": "^4.2.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set HTTPS=true&&react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

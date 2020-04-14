@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withRouter  } from "react-router-dom";
 import OrderList from './orderList';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +12,7 @@ import '../styles/admin.css';
 const Orders = (props) =>{
     const [selectedOrder, setSelectedOrder] = useState({});
     const [showOrderModal, setShowOrderModal] = useState(false);
+
     const closeOrderModal = () =>{
         setShowOrderModal(false)
     }
@@ -21,12 +22,18 @@ const Orders = (props) =>{
         setSelectedOrder(order);
     }
 
+    useEffect(() =>{
+      if(localStorage.getItem("jwt-access-token")){
+        props.getOrders();
+      }
+    },[])
+
     let spinner = (<div className="loader">Loading...</div>)
 
     let orders = ( <>
         <br />
         <Button className="btn-sm" onClick={props.syncOrders}>
-        <FontAwesomeIcon className={"nowrap fas "} icon={faSync} style=""/> 
+        <FontAwesomeIcon className={"nowrap fas "} icon={faSync} /> 
           &emsp;Refresh</Button>
         <br />
         { props.isSyncing ? spinner : <OrderList orders={props.orders} click={clickOrder} />}

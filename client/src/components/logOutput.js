@@ -22,9 +22,6 @@ const logOutput = (props) => {
                     {log.logLevel}
                 </td>
                 <td>
-                    {log.type}
-                </td>
-                <td>
                     {log.message}
                 </td>
             </tr>
@@ -36,8 +33,7 @@ const logOutput = (props) => {
             <tbody>
                 <tr>
                     <th>Timestamp</th>
-                    <th>Log Level</th>
-                    <th>Type</th>
+                    <th>Level</th>
                     <th>Message</th>
                 </tr>
                 {logRows}

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { withRouter, useHistory } from "react-router-dom";
-import { Button, Form, FormGroup, FormControl, FormLabel } from "react-bootstrap";
-import axios from 'axios';
+import { Button, Form, FormGroup, FormControl } from "react-bootstrap";
 import { api } from "../apis/apiCalls";
 import "../styles/login.css";
 
@@ -9,11 +8,12 @@ const Login = (props) =>{
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [serverReply, setServerReply] = useState("");
+  const [isValid, setIsValid] = useState(false);
 
   let history = useHistory();
 
   function validateForm() {
-    return email.length > 0 && password.length > 0;
+    setIsValid(email.length > 0 && password.length > 0);
   }
 
   const divStyle = {
@@ -24,11 +24,6 @@ const Login = (props) =>{
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    let instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
-      timeout: 10000,
-      headers: {}
-    });
     api().post('/auth', {email, password}).then((resp) => {   
         setServerReply(JSON.stringify(resp, null, 4));
         if(resp.data.accessToken && resp.data.refreshToken){
@@ -40,7 +35,7 @@ const Login = (props) =>{
         else{
           props.handleLogin(false);
         }
-    })
+    }).catch(err=>console.log("Cannot send auth request.",err))
   }
 
   return (
@@ -52,18 +47,24 @@ const Login = (props) =>{
             autoFocus
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={e => {
+              setEmail(e.target.value)
+              validateForm();
+            }}
           />
         </FormGroup>
         <FormGroup controlId="password">
         <Form.Label>Password</Form.Label>
           <FormControl
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={e => {
+              setPassword(e.target.value);
+              validateForm();
+            }}
             type="password"
           />
         </FormGroup>
-        <Button block disabled={!validateForm()} type="submit">
+        <Button block disabled={!isValid} type="submit">
           Login
         </Button>
         <pre style={divStyle}><span style={divStyle}>{serverReply}</span></pre>

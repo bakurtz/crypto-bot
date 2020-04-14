@@ -1,6 +1,8 @@
-const jwt = require('jsonwebtoken'),
-    secret = require('../config/env.config.js').jwt_secret,
-    crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+require('dotenv').config();
+
+const jwtSecret = process.env.JWT_SECRET
 
 exports.verifyRefreshBodyField = (req, res, next) => {
     if (req.body && req.body.refresh_token) {
@@ -30,11 +32,12 @@ exports.validJWTNeeded = (req, res, next) => {
             if (authorization[0] !== 'Bearer') {
                 return res.status(401).send();
             } else {
-                req.jwt = jwt.verify(authorization[1], secret);
+                req.jwt = jwt.verify(authorization[1], jwtSecret);
                 return next();
             }
 
         } catch (err) {
+            console.log("INVALID JWT!!!",err)
             return res.status(403).send();
         }
     } else {

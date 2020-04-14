@@ -2,3 +2,17 @@
     font-size: 16px;
     color: white;
 }
+
+
+input.admin{
+    width: 165px;
+    margin: 5px;
+}
+.centerFlexRow{
+    text-align: center;
+    vertical-align: middle;
+    margin: auto 0px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }

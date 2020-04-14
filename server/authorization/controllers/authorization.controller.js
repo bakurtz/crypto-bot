@@ -1,7 +1,10 @@
-const jwtSecret = require('../../common/config/env.config.js').jwt_secret,
-    jwt = require('jsonwebtoken');
+jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const uuid = require('uuid');
+require('dotenv').config();
+
+const jwtSecret = process.env.JWT_SECRET
+const jwt_life_in_seconds = Number(process.env.JWT_EXPIRATION_IN_SECONDS);
 
 exports.login = (req, res) => {
     try {
@@ -9,11 +12,14 @@ exports.login = (req, res) => {
         let salt = crypto.randomBytes(16).toString('base64');
         let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
         req.body.refreshKey = salt;
-        let token = jwt.sign(req.body, jwtSecret);
+        delete req.body.exp;
+        //req.body.exp = Math.floor(Date.now() / 1000) + (jwt_life_in_seconds);
+        let token = jwt.sign(req.body, jwtSecret, { expiresIn: jwt_life_in_seconds });
         let b = new Buffer(hash);
         let refresh_token = b.toString('base64');
         res.status(201).send({accessToken: token, refreshToken: refresh_token});
     } catch (err) {
+        console.log(err)
         res.status(500).send({errors: err});
     }
 };

@@ -15,7 +15,7 @@ const about = (props) =>{
          
           <br /><br />
           <br /><br />
-          <a href="https://github.com/TheRyanMiller/crytpo-bot">View this project on GitHub</a>
+          <a href="https://github.com/TheRyanMiller/crypto-bot">View this project on GitHub</a>
       </div>
     </div>
   )

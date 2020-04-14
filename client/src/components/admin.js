@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter  } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
-import axios from 'axios';
 import '../styles/admin.css';
 import LogOutput from './logOutput';
 import { api } from "../apis/apiCalls";
@@ -23,10 +22,10 @@ const Admin = (props) =>{
     
 
     const lookupOrder = (orderId) => {
-        api().get('/coinbase/getOrder', {params: {orderId}}).then((resp) => {   
+        api().get(`/coinbase/getOrder/${orderId}`).then((resp) => {   
             if(resp.data.success === false && resp.data.error.response) setText(resp.data.error.response.body);
             else{setText("ORDERS: \n" + JSON.stringify(resp.data.data, null, 4))}
-        })
+        }).catch(err=>console.log("Failed attempt to lookup order.",err))
     }
 
     const getLogs = () => {
@@ -35,32 +34,40 @@ const Admin = (props) =>{
             let logResults = resp.data.data;
             setLogs(logResults);
             //else{setLogs(JSON.stringify(resp.data.data, null, 4))}
-        })
+        }).catch(err=>console.log("Cannot get logs.",err))
     }
 
     const lookupFills = (orderId) => {
         api().get(`/coinbase/getFills/${orderId}`).then((resp) => {
             let fills = resp.data.data;
             setText("FILLS:  \n"+ fills.length + " fill(s) found \n "+JSON.stringify(fills, null, 4))
-        })
+        }).catch(err=>console.log("Failed attempt to lookup fill.",err))
     }
 
     let admin = (
         <div>
-            <div className="adminSearch centerFlex">
-                <br /><br />
-                <div className="adminSearch centerFlex">
-                Lookup Order: <input onChange={ (ev)=> setOrderId(ev.target.value) } />
-                    <Button onClick={()=>{lookupOrder(orderId)}}>Lookup</Button><br />
-                Lookup Fills: <input />
-                    <Button onClick={()=>{lookupFills(orderId)}}>Lookup</Button>
+            <div className="adminSearch centerFlex"><br />
+                <div className="adminSearch centerFlex" >
+                <span >Lookup Order: </span>
+                <div className="centerFlexRow">
+                    <input className="admin" onChange={ (ev)=> setOrderId(ev.target.value) } />
+                    <Button className="inlineButton" size="sm" onClick={()=>{lookupOrder(orderId)}}>Search</Button>
+                </div>
+                <br />
+                
+                Lookup Fills: <br />
+                <div className="centerFlexRow">
+                    <input className="admin" onChange={ (ev)=> setOrderId(ev.target.value) } />
+                    <Button className="inlineButton" size="sm" onClick={()=>{lookupFills(orderId)}}>Search</Button>
+                </div>
                 </div>
                 <br /><br />
-                <br /><br />
-                <LogOutput className="centerFlex" logs={logs} />
                 <div style={divStyle}>
                     <pre style={divStyle}><span style={divStyle}>{text}</span></pre>
                 </div>
+                <br /><br />
+                <LogOutput className="centerFlex" logs={logs} />
+                
                 
             </div>
         </div>

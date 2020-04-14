@@ -9,8 +9,6 @@ import Config from './components/config';
 import PrivateRoute from './components/PrivateRoute';
 import AccountBalances from './components/accountBalances';
 import { api } from "./apis/apiCalls";
-
-import axios from 'axios';
 import './styles/App.css';
 import './styles/nav.css';
 
@@ -32,39 +30,46 @@ function App() {
     })
   }
 
-  const getMarketPrice = () => {
-    api().get('/coinbase/getMarketPrice').then((resp) => {
-      setMarketPrice(resp.data.data);
-    })
-  }
-
   const getOrders = () => {
     api().get('/order/getAll').then((resp) => {
-      setOrders(resp.data.data);
-      setIsSyncing(false);
-    })
+      try{
+        setOrders(resp.data.data);
+        setIsSyncing(false);
+      }
+      catch(err){
+        console.log("Unable to set orders.",err)
+      }
+    }).catch(err=>console.log("Unable to get users orders.",err))
+  }
+
+  const getMarketPrice = () => {
+    api().get('/coinbase/getMarketPrice').then((resp) => {
+      console.log(resp.data.data)
+      setMarketPrice(resp.data.data);
+    }).catch(err=>console.log("Unable to get marketprice.",err))
   }
 
   const getAccountBalances = () => {
-    if(isLoggedIn){
+    if(localStorage.getItem("jwt-access-token")){
       api().get('/coinbase/getAccountBalances').then((resp) => {
-        console.log("Account Balances: ",resp.data.data);
-        console.log("BTC: "+resp.data.data.btc)
-        console.log("USD: "+resp.data.data.usd)
         setAcctBalance(resp.data.data);
-      })
+      }).catch(err=>console.log("Unable to get aaccount balances.",err))
     }
   }
 
   useEffect(() =>{
-    getOrders();
-    getMarketPrice();
-    getAccountBalances();
+    if(localStorage.getItem("jwt-access-token")){
+      getMarketPrice();
+      getAccountBalances();
+    }
   },[])
 
  
 
   const HomeDisplay = () => {
+    if(localStorage.getItem("jwt-access-token")){
+      setIsLoggedIn(true);
+    }
     return (
       <>
         <Config />
@@ -76,6 +81,7 @@ function App() {
     return (
       <Orders
         orders={orders}
+        getOrders={getOrders}
         syncOrders={syncOrders}
         isSyncing={isSyncing}
       />
@@ -83,7 +89,7 @@ function App() {
   }
 
   let accountBalances = (
-    <AccountBalances acctBalance marketPrice />
+    <AccountBalances acctBalance={acctBalance} marketPrice={marketPrice} />
   )
 
   let nav = (
@@ -119,7 +125,11 @@ function App() {
   )
 
   let handleLogin = (valid) => {
-    if(valid) setIsLoggedIn(true)
+    if(valid) {
+      setIsLoggedIn(true);
+      getAccountBalances();
+      getMarketPrice();
+    }
     else{
       setIsLoggedIn(false);
     }
@@ -135,16 +145,16 @@ function App() {
     <Router>
     <div className="App center">
       <header className="App-header">
-        { isLoggedIn ? nav : "" }
-        { isLoggedIn ? accountBalances : "ABCDEFG" }
+        { localStorage.getItem("jwt-access-token") ? nav : "" }
+        { localStorage.getItem("jwt-access-token") ? accountBalances : "" }
       </header>
           
           <PrivateRoute isAuthenticated={isLoggedIn} path="/" exact render={()=>HomeDisplay()} />
           <Route path="/register" exact render={Register} />
           <Route path="/login" exact render={ (props) => <Login {...props}  handleLogin={handleLogin} /> } />
-          <Route path="/orders" exact render={()=>OrdersDisplay()} />
+          <PrivateRoute path="/orders" exact render={()=>OrdersDisplay()} />
           <Route path="/about" exact component={About} />
-          <Route path="/admin" exact component={Admin} />
+          <PrivateRoute path="/admin" exact component={Admin} />
           <br /><br /><br />
       
       
