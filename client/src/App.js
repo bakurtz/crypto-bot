@@ -8,6 +8,8 @@ import Login from './components/login';
 import Config from './components/config';
 import PrivateRoute from './components/PrivateRoute';
 import AccountBalances from './components/accountBalances';
+import { api } from "./apis/apiCalls";
+
 import axios from 'axios';
 import './styles/App.css';
 import './styles/nav.css';
@@ -19,15 +21,9 @@ function App() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  let instance = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
-    timeout: 10000,
-    headers: {}
-  });
-
   const syncOrders = () => {
     setIsSyncing(true);
-    instance.post('/syncOrders', {params: null}).then((resp) => {
+    api().post('/coinbase/syncOrders', {params: null}).then((resp) => {
       getOrders();
     })
     .catch(err=>{
@@ -37,13 +33,13 @@ function App() {
   }
 
   const getMarketPrice = () => {
-    instance.get('/getMarketPrice').then((resp) => {
+    api().get('/coinbase/getMarketPrice').then((resp) => {
       setMarketPrice(resp.data.data);
     })
   }
 
   const getOrders = () => {
-    instance.get('/getAllOrders').then((resp) => {
+    api().get('/order/getAll').then((resp) => {
       setOrders(resp.data.data);
       setIsSyncing(false);
     })
@@ -51,7 +47,7 @@ function App() {
 
   const getAccountBalances = () => {
     if(isLoggedIn){
-      instance.get('/getAccountBalances').then((resp) => {
+      api().get('/coinbase/getAccountBalances').then((resp) => {
         console.log("Account Balances: ",resp.data.data);
         console.log("BTC: "+resp.data.data.btc)
         console.log("USD: "+resp.data.data.usd)
@@ -86,9 +82,9 @@ function App() {
     )
   }
 
-  let accountBalances = () =>{
-    return <AccountBalances acctBalance marketPrice />
-  }
+  let accountBalances = (
+    <AccountBalances acctBalance marketPrice />
+  )
 
   let nav = (
     <nav className="Nav">
@@ -122,16 +118,30 @@ function App() {
     </nav>
   )
 
+  let handleLogin = (valid) => {
+    if(valid) setIsLoggedIn(true)
+    else{
+      setIsLoggedIn(false);
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwt-access-token");
+    localStorage.removeItem("jwt-refresh-token");
+    setIsLoggedIn(false);
+  }
+
   return (
     <Router>
     <div className="App center">
       <header className="App-header">
         { isLoggedIn ? nav : "" }
+        { isLoggedIn ? accountBalances : "ABCDEFG" }
       </header>
-          { isLoggedIn ? accountBalances : "" }
-          <PrivateRoute isAuthenticated={false} path="/" exact render={()=>HomeDisplay()} />
+          
+          <PrivateRoute isAuthenticated={isLoggedIn} path="/" exact render={()=>HomeDisplay()} />
           <Route path="/register" exact render={Register} />
-          <Route path="/login" exact render={Login} />
+          <Route path="/login" exact render={ (props) => <Login {...props}  handleLogin={handleLogin} /> } />
           <Route path="/orders" exact render={()=>OrdersDisplay()} />
           <Route path="/about" exact component={About} />
           <Route path="/admin" exact component={Admin} />

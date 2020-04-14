@@ -1,23 +1,25 @@
-const UserModel = require('../models/users.model');
 const crypto = require('crypto');
+const Config = require('../schemas/Config');
+const Log = require('../../common/schemas/Log');
+const cron = require('../../cron/cron');
 
 exports.listLogs = (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
-    Log.find(query).sort(sort).then((data,err) => {
+    Log.model.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true, data: data })
+        return res.json({ success: true, data })
     })
     .catch(err=>console.log(err))
-    
 };
 
 exports.getConfig = (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
+    console.log("YOOO")
     Config.model.findOne(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
-        return res.json({ success: true, data: data })
+        return res.json({ success: true, data })
     })
 };
 
@@ -40,10 +42,9 @@ exports.saveConfig = (req, res) => {
 
     Config.model.findOneAndUpdate({}, data, options, (err, data) => {
         if (err) return res.json({ success: false, error: err });
-        if(cronTask) cronTask.destroy();
-        let errorText = "";
-        setCron(config);
-        let log = new Log({
+        cron.kill();
+        cron.set(config);
+        let log = new Log.model({
             type: "Config change",
             message: "New config saved",
             logLevel: "low",

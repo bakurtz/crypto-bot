@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("../../common/services/mongoose.service").mongoose;
 const Schema = mongoose.Schema;
 
 const LogSchema = new Schema(
@@ -11,4 +11,4 @@ const LogSchema = new Schema(
 );
 
 // export the new Schema so we could modify it using Node.js
-module.exports = mongoose.model("Log", LogSchema)
+const Log = exports.model = mongoose.model("Log", LogSchema);

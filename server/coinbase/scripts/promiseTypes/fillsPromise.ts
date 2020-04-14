@@ -2,9 +2,9 @@
 import { AuthenticatedClient } from 'coinbase-pro';
 import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
 import { FillFilter } from 'coinbase-pro';
-import { Order } from '../../../../interfaces/Order';
+import { Order } from '../../interfaces/order';
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
-import axios from 'axios';
+import { api } from '../../../common/services/apiAuth';
 require('dotenv').config();
 
 const product = "BTC-USD";
@@ -22,13 +22,7 @@ const coinbaseProConfig: CoinbaseProConfig = {
 };
 let authClient = new AuthenticatedClient(coinbaseProConfig.auth.key, coinbaseProConfig.auth.secret, coinbaseProConfig.auth.passphrase, coinbaseProConfig.apiUrl);
 
-let instance = axios.create({
-    baseURL: process.env.API_URL,
-    timeout: 10000,
-    headers: {}
-});
-
-module.exports = (dbOrder: Order) => new Promise((resolve, reject)=>{
+module.exports = (dbOrder: Order, token: string) => new Promise((resolve, reject)=>{
     let fillFilter: FillFilter = {
         product_id: product,
         order_id: dbOrder.id
@@ -38,17 +32,21 @@ module.exports = (dbOrder: Order) => new Promise((resolve, reject)=>{
         typedFill.fills = fills;
         if(fills.length>0){
             //add All fills
-            instance.post(`/addFills/${dbOrder.id}`,{params: {
-                fills
-            }})
+            api(token).post(`/addFills/${dbOrder.id}`,{fills})
             .then((resp) => {
                 console.log("Found new fills. /addFills db write failed. "+dbOrder.id);
+                resolve(resp);
             })
-            .catch(err => console.log("Found new fills. /addFills db write failed. "+dbOrder.id));
+            .catch(err => {
+                console.log("Found new fills. /addFills db write failed. "+dbOrder.id)
+                reject(err);
+            });
         }
         else{
             console.log("No fill data found for order "+dbOrder.id);
         }
         resolve(typedFill);
+    }).catch(err=>{
+        reject(err);
     });
 })

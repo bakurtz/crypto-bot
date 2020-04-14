@@ -4,8 +4,8 @@ import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
 import { FillFilter } from 'coinbase-pro';
 import { AuthenticatedClient } from 'coinbase-pro';
-import { Order } from '../../../../interfaces/Order';
-import axios from 'axios';
+import { Order } from '../../interfaces/order';
+import { api } from '../../../common/services/apiAuth';
 
 require('dotenv').config();
 
@@ -28,21 +28,15 @@ const coinbaseProConfig: CoinbaseProConfig = {
 };
 const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
 let authClient = new AuthenticatedClient(coinbaseProConfig.auth.key, coinbaseProConfig.auth.secret, coinbaseProConfig.auth.passphrase, coinbaseProConfig.apiUrl);
-let instance = axios.create({
-    baseURL: process.env.API_URL,
-    timeout: 10000,
-    headers: {}
-});
 
-
-module.exports = (id: string) => new Promise((resolve, reject)=>{
+module.exports = (id: string, token: string) => new Promise((resolve, reject)=>{
     coinbasePro.loadOrder(id).then((order: LiveOrder) => { // CALL!
         let o = convertOrderType(order);
-        console.log("CLOUDN'T MATCH THIS ORDER "+id)
         //Grab Fills for this order
-        instance.post('/updateOrder',{params: {order: o}}).then((resp) => { // CALL!
+        api(token).post("/order/update",{order: o}).then((resp) => { // CALL!
             console.log("Updated Order written to db.");
-        })
+            resolve(resp);
+        }).catch(err=>reject(err));
         let fillFilter: FillFilter = {
             product_id: product,
             order_id: id
@@ -50,38 +44,52 @@ module.exports = (id: string) => new Promise((resolve, reject)=>{
         authClient.getFills(fillFilter).then( // CALL!
             (fills: any)=>{ 
             if(fills && fills.length>0){
-                instance.post(`/addFills/${id}`,{params: {
-                    fills: fills
-                }})
+                api(token).post(`/addFills/${id}`,{fills})
                 .then((resp) => {
                     console.log("Added fill data to "+id);
+                    resolve(resp);
                 })
-                .catch(err => console.log("updateDbOrder API CALL FAILED "+err));
+                .catch(err => {
+                    console.log("updateDbOrder API CALL FAILED "+err);
+                    reject(err);
+                });
             }
         }).catch(err => {
-            //Return error message 
-            let rateLimitError = false;
-            let errorMessage = JSON.parse(err.response.body).message;
-            if(errorMessage.includes("rate limit")) rateLimitError = true;
-            let e = {rateLimitError, errorMessage}
-            console.log(e);
+            //Return error message
+            try{
+                let rateLimitError = false;
+                let errorMessage = JSON.parse(err.response.body).message;
+                if(errorMessage.includes("rate limit")) rateLimitError = true;
+                let e = {rateLimitError, errorMessage}
+                console.log(e);
+                reject(e);
+            }
+            catch(e){
+                reject(err);
+            }
         })
         let typedOrder = {};
         typedOrder = {type: "order", order};
         resolve(typedOrder);
     }).catch(err => {
-        //Return error message 
-        let rateLimitError = false;
-        let errorMessage = JSON.parse(err.response.body).message;
-        if(errorMessage.includes("rate limit")) rateLimitError = true;
-        if(!rateLimitError && errorMessage==="NotFound" ){
-            instance.post(`/archiveOrder/${id}`).then((resp)=>{
-                console.log("Suspect this order didn't exist. Now it's archived: "+id)
-            })
+        //Return error message
+        try{
+            let rateLimitError = false;
+            let errorMessage = JSON.parse(err.response.body).message;
+            if(errorMessage.includes("rate limit")) rateLimitError = true;
+            if(!rateLimitError && errorMessage==="NotFound" ){
+                api(token).post(`/archive/${id}`).then((resp)=>{
+                    console.log("Suspect this order didn't exist. Now it's archived: "+id);
+                    resolve(resp);
+                })
+            }
+            let e = {rateLimitError, errorMessage}
+            console.log(e);
+            reject(e);
         }
-        let e = {rateLimitError, errorMessage}
-        console.log(e);
-        reject(e);
+        catch(e){
+            reject(err);
+        }
     })
 })
 

@@ -20,7 +20,6 @@ const kill = exports.kill = () => {
         cronTask.destroy();
         console.log("Cron destroyd!")
     }
-    if(!cronTask) console.log("Cannot kill cron. No cron is set.");
 }
 
 const set = exports.set = (config) => {
@@ -29,12 +28,9 @@ const set = exports.set = (config) => {
             cronTask = cron.schedule(config.cronValue, () =>  {
                 placeOrder(config.limitOrderDiff, config.buySize, config.buyType);
             })
-            let log = new Log(
-                {type: "Crontab set", message: "New cron task strarted: "+config.cronValue,logLevel: "info", data: config.cronValue}
-            )
-            log.save( err => {
-                if(err) console.log(err)
-            })
+            console.log("New cron set: "+config.cronValue)
+            let log = new Log.model({type: "Crontab set", message: "New cron task strarted: "+config.cronValue,logLevel: "info", data: config.cronValue})
+            log.save( err => { if(err) console.log(err) })
         }
         else{
             errorText = "Invalid cron entry."
@@ -45,7 +41,7 @@ const set = exports.set = (config) => {
     else{
         if(cronTask) {
             cronTask.destroy();
-            let log = new Log(
+            let log = new Log.model(
                 {type: "Crontab destroyed", message: "Cron job destroyed.",logLevel: "info", data: config.cronValue}
             )
             log.save( err => {

@@ -5,12 +5,12 @@ const orderList = (props) => {
     let fills = (<></>);
     let thead = (<></>);
     if(props.order.fills.length>0){
-        thead = (<>
+        thead = (<tr>
                   <th>Trade ID:</th>
                   <th>Size:</th>
                   <th>Price:</th>
                   <th>Fee:</th>
-                </>);
+                </tr>);
         fills = props.order.fills.map((fill,idx) => {
             return (
               <tr key={idx}>

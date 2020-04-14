@@ -14,8 +14,13 @@ import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';
 import axios from 'axios';
 const Log = require('../../../server/common/schemas/Log');
 
-
 require('dotenv').config();
+
+let instance = axios.create({
+    baseURL: process.env.API_URL,
+    timeout: 10000,
+    headers: {}
+});
 
 module.exports = function (differential: number, dollarAmt: number, orderTypeInput: string){
     const logger = CBPTT.utils.ConsoleLoggerFactory();
@@ -36,14 +41,6 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
 
     const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
 
-    let instance = axios.create({
-        baseURL: process.env.API_URL,
-        timeout: 10000,
-        headers: {}
-    });
-
-
-
     coinbasePro.loadMidMarketPrice(product).then((price: BigJS) => {
         console.log("Setting Order Price to: "+(Number(price) - (Number(price) * buyDifferential)).toFixed(2));
         marketPrice = Number(price.toFixed(8));
@@ -52,7 +49,7 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
         coinbasePro.placeOrder(buildOrder()).then((o: LiveOrder) => {
             return coinbasePro.loadOrder(o.id);
         }).then((order: any) => {
-            instance.post('/addOrder', {
+            instance.post('/order/add', {
                 order,
                 dollarAmt
             })
@@ -73,7 +70,7 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
             let failedMessage = JSON.parse(err.response.body).message;
             console.log(failedMessage)
             let order = buildOrder();
-            instance.post('/logFailedOrder', {
+            instance.post('/order/logFailed', {
                 order,
                 dollarAmt,
                 failedMessage

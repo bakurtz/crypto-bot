@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import '../styles/admin.css';
 import LogOutput from './logOutput';
-
+import { api } from "../apis/apiCalls";
 
 const Admin = (props) =>{
 
@@ -23,24 +23,14 @@ const Admin = (props) =>{
     
 
     const lookupOrder = (orderId) => {
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-        });
-        instance.get('/getCBOrder', {params: {orderId}}).then((resp) => {   
+        api().get('/coinbase/getOrder', {params: {orderId}}).then((resp) => {   
             if(resp.data.success === false && resp.data.error.response) setText(resp.data.error.response.body);
             else{setText("ORDERS: \n" + JSON.stringify(resp.data.data, null, 4))}
         })
     }
 
     const getLogs = () => {
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-        });
-        instance.get('/getLogs').then((resp) => {   
+        api().get('/profile/getLogs').then((resp) => {   
             if(resp.data.success === false && resp.data.error.response) setText(resp.data.error.response.body);
             let logResults = resp.data.data;
             setLogs(logResults);
@@ -49,12 +39,7 @@ const Admin = (props) =>{
     }
 
     const lookupFills = (orderId) => {
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-        });
-        instance.get('/getCbFills', {params: {orderId}}).then((resp) => {
+        api().get(`/coinbase/getFills/${orderId}`).then((resp) => {
             let fills = resp.data.data;
             setText("FILLS:  \n"+ fills.length + " fill(s) found \n "+JSON.stringify(fills, null, 4))
         })

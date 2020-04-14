@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { withRouter, useHistory } from "react-router-dom";
 import { Button, Form, FormGroup, FormControl, FormLabel } from "react-bootstrap";
 import axios from 'axios';
+import { api } from "../apis/apiCalls";
 import "../styles/login.css";
 
 const Login = (props) =>{
@@ -28,7 +29,7 @@ const Login = (props) =>{
       timeout: 10000,
       headers: {}
     });
-    instance.post('/auth', {email, password}).then((resp) => {   
+    api().post('/auth', {email, password}).then((resp) => {   
         setServerReply(JSON.stringify(resp, null, 4));
         if(resp.data.accessToken && resp.data.refreshToken){
           localStorage.setItem("jwt-access-token",resp.data.accessToken) // write to local storage

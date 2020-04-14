@@ -153,7 +153,7 @@ module.exports = () => {
                             let o = convertOrderType(order);
                             console.log("CLOUDN'T MATCH THIS ORDER "+dbOrder.id)
                             //Grab Fills for this order
-                            instance.post('/updateOrder',{params: {order: o}}).then((resp) => { // CALL!
+                            instance.post('/order/update',{order: o}).then((resp) => { // CALL!
                                 console.log("Updated Order written to db.");
                             })
                             let fillFilter: FillFilter = {
@@ -188,7 +188,7 @@ module.exports = () => {
                             let errorMessage = JSON.parse(err.response.body).message;
                             if(errorMessage.includes("rate limit")) rateLimitError = true;
                             if(!rateLimitError){
-                                instance.post(`/archiveOrder/${dbOrder.id}`).then((resp)=>{
+                                instance.post(`/archive/${dbOrder.id}`).then((resp)=>{
                                     console.log("Suspect this order didn't exist. Now it's archived: "+dbOrder.id)
                                 })
                             }
@@ -223,7 +223,7 @@ module.exports = () => {
                     });
                     //Update Order
                     coinbasePro.loadOrder(dbOrder.id).then((order: LiveOrder) => { // CALL!
-                            instance.post('/updateOrder',{params: {order}}).then((resp) => {
+                            instance.post('/order/update',{params: {order}}).then((resp) => {
                                 console.log("updateDbOrder API CALL SUCCEEDED");
                                 openDbOrders=resp.data.data;
                             }).catch(err => console.log("updateDbOrder API CALL FAILED"));

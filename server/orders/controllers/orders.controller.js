@@ -1,4 +1,7 @@
 const Order = require('../schemas/Order');
+const Fill = require('../schemas/Fill');
+const FailedOrder = require('../schemas/FailedOrder');
+const Log = require('../../common/schemas/Log');
 
 exports.listOpenOrders = (req, res) => {
     let query = {};
@@ -65,9 +68,9 @@ exports.addOrder = (req, res) => {
 };
 
 exports.updateById = (req, res) => {
-    let o = req.body.params.order;
+    let o = req.body.order;
     let options = {new: true, upsert: true, useFindAndModify: false};
-    Order.findOneAndUpdate({id:req.body.params.order.id},{
+    Order.findOneAndUpdate({id:o.id},{
       //update
         _id: o.id,
         id: o.id,
@@ -108,7 +111,7 @@ exports.logFailed = (req, res) => {
         })
     failedOrder.save((err)=>{
         if(err) return res.json({ success: false, error: err });
-        let log = new Log({ type: "Failed Order",   message: failedMessage,logLevel: "error",data: JSON.stringify})
+        let log = new Log.model({ type: "Failed Order",   message: failedMessage,logLevel: "error",data: JSON.stringify})
         log.save((err)=>{
             if(err) return res.json({ success: false, error: err });
             return res.json({ success: true, message: "Written successfully." });
@@ -134,7 +137,7 @@ exports.archiveOrder = (req, res) => {
 };
 
 exports.addFills = (req, res) => {
-    let fills = req.body.params.fills;
+    let fills = req.body.fills;
     let orderId = req.params.orderId;
     let myFill = new Fill.model({
         fills

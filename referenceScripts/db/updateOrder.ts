@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import { createFakeDbOrder } from './convertOrderType';
-import { Order } from '../../interfaces/Order';
+import { Order } from '../../server/coinbase/interfaces/order';
 
 require('dotenv').config();
 
@@ -16,8 +16,7 @@ let instance = axios.create({
     headers: {}
 });
 
-instance.post('/updateOrder',{params: {order: order}})
+instance.post('/order/update',{order: order})
 .then((resp) => {
     console.log("");
-    
 })

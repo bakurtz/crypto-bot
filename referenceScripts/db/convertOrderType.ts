@@ -1,5 +1,5 @@
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
-import { Order, Fill } from '../../interfaces/Order';
+import { Order, Fill } from '../../server/coinbase/interfaces/order';
 
 export function convertOrderType(o: LiveOrder){
     let dbOrder: Order = {

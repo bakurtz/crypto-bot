@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
 import axios from 'axios';
+import { api } from "../apis/apiCalls";
 let cronParser = require('cron-parser');
 
 
@@ -45,12 +46,7 @@ const Config = (props) =>{
     }
 
     useEffect(() =>{
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-          });
-          instance.get('/getConfig').then((resp) => {
+          api().get('/profile/getConfig').then((resp) => {
               console.log(resp.data.data);
               if(!!resp.data.data){ // In case no data exists in DB
                 let config = resp.data.data;
@@ -82,12 +78,7 @@ const Config = (props) =>{
     }
 
     const saveChanges = (config) => new Promise(function(resolve, reject) {
-        let instance = axios.create({
-            baseURL: process.env.REACT_APP_API_URL,
-            timeout: 10000,
-            headers: {}
-        });
-        instance.post('/saveConfig', {params: config}).then((resp) => {
+        api().post('/profile/saveConfig', {params: config}).then((resp) => {
             //We need to get the response and fill the values
             console.log(resp);
             if(resp.data.success===false){

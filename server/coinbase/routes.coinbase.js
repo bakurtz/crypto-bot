@@ -1,32 +1,35 @@
 const CoinbaseController = require('./controllers/coinbase.controller');
-//const PermissionMiddleware = require('../common/middlewares/auth.permission.middleware');
 const ValidationMiddleware = require('../common/middlewares/auth.validation.middleware');
-const config = require('../common/config/env.config');
 
 exports.routesConfig = function (app) {
     
     app.post('/coinbase/placeOrder', [
-        //ValidationMiddleware.validJWTNeeded,
-        OrdersController.placeOrder
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.placeOrder
     ]);
 
-    app.get('/coinbase/getFills', [
-        //ValidationMiddleware.validJWTNeeded,
-        UsersController.getFills
+    app.get('/coinbase/getFills/:orderId', [
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.getFills
     ]);
 
     app.get('/coinbase/getMarketPrice', [
-        //ValidationMiddleware.validJWTNeeded,
-        UsersController.getMarketPrice
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.getMarketPrice
     ]);
 
     app.get('/coinbase/getAccountBalances', [
-        //ValidationMiddleware.validJWTNeeded,
-        UsersController.getAccountBalances
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.getAccountBalances
     ]);
 
-    app.post('/coinbase/syncOrders', [
-        //ValidationMiddleware.validJWTNeeded,
-        UsersController.syncOrders
+    app.get('/coinbase/getOrder/:orderId', [
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.getOrder
     ])
+
+    app.post('/coinbase/syncOrders', [
+        ValidationMiddleware.validJWTNeeded,
+        CoinbaseController.syncOrders
+    ]);
 };

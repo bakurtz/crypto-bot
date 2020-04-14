@@ -24,12 +24,17 @@ module.exports = (id: string) => new Promise((resolve,reject)=>{
         resolve(order);
     })
     .catch(err => {
-        //Return error message 
-        let rateLimitError = false;
-        let errorMessage = JSON.parse(err.response.body).message;
-        if(errorMessage.includes("rate limit")) rateLimitError = true;
-        let e = {rateLimitError, errorMessage}
-        console.log(e);
-        reject(e)
+        try{
+            let rateLimitError = false;
+            let errorMessage = JSON.parse(err.response.body);
+            if(errorMessage.includes("rate limit")) rateLimitError = true;
+            let e = {rateLimitError, errorMessage}
+            reject(e);
+        }
+        catch(e){
+            console.log(err.response.body);
+            reject(err.response.body)
+        }
+        
     })
 })

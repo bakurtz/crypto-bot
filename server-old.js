@@ -120,7 +120,7 @@ router.post('/addFills', (req, res) => {
 });
 
 
-router.get('/getOpenOrders', (req, res) => {
+router.get('/getOpen', (req, res) => {
     let query = {};
     console.log("query ",req.query);
     let sort = { createdAt : -1 };
@@ -133,7 +133,7 @@ router.get('/getOpenOrders', (req, res) => {
   })
 });
 
-router.get('/getAllOrders', (req, res) => {
+router.get('/getAll', (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
     console.log(sort);
@@ -144,7 +144,7 @@ router.get('/getAllOrders', (req, res) => {
     .catch(err=>console.log(err))
 });
 
-router.get('/getLogs', (req, res) => {
+router.get('/profile/getLogs', (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
     Log.find(query).sort(sort).then((data,err) => {
@@ -154,7 +154,7 @@ router.get('/getLogs', (req, res) => {
     .catch(err=>console.log(err))
 });
 
-router.post('/updateOrder', (req, res) => {
+router.post("/order/update", (req, res) => {
     let o = req.body.params.order;
     let options = {new: true, upsert: true, useFindAndModify: false};
     Order.findOneAndUpdate({id:req.body.params.order.id},{
@@ -180,7 +180,7 @@ router.post('/updateOrder', (req, res) => {
     })
 });
 
-router.post('/placeOrder', (req, res) => {
+router.post('/coinbase/placeOrder', (req, res) => {
     let differential;
     if(!req.body.params || !req.body.params.differential){
         differential = process.env.BUY_DIFFERENTIAL;
@@ -194,7 +194,7 @@ router.post('/placeOrder', (req, res) => {
     return res.json({ success: true, data: null });
 });
 
-router.post('/logFailedOrder', (req, res) => {
+router.post('/order/logFailed', (req, res) => {
     let o = req.body.order;
     let failedMessage = req.body.failedMessage;
     let failedOrder = new FailedOrder(
