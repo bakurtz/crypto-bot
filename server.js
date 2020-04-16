@@ -3,18 +3,15 @@ var cors = require('cors');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const path = require("path");
-const Order = require('./server/orders/schemas/Order');
-const Fill = require('./server/orders/schemas/Fill');
-const FailedOrder = require('./server/orders/schemas/FailedOrder');
 const Log = require('./server/common/schemas/Log');
-const Config = require('./server/profile/schemas/Config');
-let placeOrder = require('./server/coinbase/scripts/orderPlacer.ts');
 const cron = require('./server/cron/cron');
 const OrderRouter = require('./server/orders/routes.orders');
 const CoinbaseRouter = require('./server/coinbase/routes.coinbase');
 const ProfileRouter = require('./server/profile/routes.profile');
 const AuthRouter = require('./server/authorization/routes.authorization');
 const UsersRouter = require('./server/users/routes.users');
+const https = require('https');
+const fs = require('fs');
 require('dotenv').config();
 
 const API_PORT = 3001;
@@ -42,11 +39,13 @@ cron.initialize();
 let log = new Log.model({ type: "Startup", message: "Crypto bot server is launched.", logLevel: "info", data: "" })
 log.save( err => { if(err) console.log(err)} )
 
-
-
-
 // launch our backend into a port
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "client", "build", "index.html"));
 });
+
+// https.createServer({
+//   key: fs.readFileSync('./certs/server.key'),
+//   cert: fs.readFileSync('./certs/cert.pem')
+// }, app)
 app.listen(process.env.PORT || process.env.API_PORT, () => console.log(`LISTENING ON PORT ${process.env.PORT || process.env.API_PORT}`));

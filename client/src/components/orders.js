@@ -48,14 +48,18 @@ const Orders = (props) =>{
           }}
         >
           <br /><br />
+          {console.log(selectedOrder)}
+          <strong>USD spent:</strong>&nbsp; ${Number(selectedOrder.totalUsdSpent)}<br />
+          <strong>BTC size:</strong>&nbsp; {Number(selectedOrder.size)}<br />
+          <strong>BTC Order Price:</strong>&nbsp; <span>${selectedOrder.price}/BTC</span><br />
+          <strong>BTC Market Price:</strong>&nbsp; <span>${selectedOrder.marketPrice}/BTC</span><br />
+          <hr />
           <strong>Order ID:</strong> <span>{selectedOrder.id}</span><br />
           <strong>Status:</strong> <span>{selectedOrder.status}</span><br />
           <strong>Time:</strong> <span>{selectedOrder.time}</span><br />
           <strong>Percent Filled:</strong><span> {Number(selectedOrder.filled_size) === 0 ? 0 : Number(selectedOrder.size) / Number(selectedOrder.filled_size) * 100} %  </span><br />
-          <hr />
-          <strong>Total USD spent:</strong> ${Number(selectedOrder.totalUsdSpent)}<br />
-          <strong>BTC size:</strong> {Number(selectedOrder.size)}<br />
-          <strong>Market Price (1 BTC):</strong> <span>{selectedOrder.price}</span><br />
+          
+          
           
           
           <br /><br />

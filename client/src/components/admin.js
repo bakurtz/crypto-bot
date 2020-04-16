@@ -65,7 +65,9 @@ const Admin = (props) =>{
                 <div style={divStyle}>
                     <pre style={divStyle}><span style={divStyle}>{text}</span></pre>
                 </div>
-                <br /><br />
+                Logs:
+                <br />
+                <br />
                 <LogOutput className="centerFlex" logs={logs} />
                 
                 

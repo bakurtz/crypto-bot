@@ -10,6 +10,7 @@ const OrderSchema = new Schema(
     price: Number, //big number
     size: Number, //big number
     totalUsdSpent: Number,
+    marketPrice: Number,
     time: Date,
     productId: String,
     status: String,

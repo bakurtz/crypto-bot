@@ -5,6 +5,8 @@ import '../styles/config.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faPencilAlt, faClock, faCheck, faPercent, faExclamation,faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-responsive-modal';
+import DatesPreview from './datesPreview';
 import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
 import { api } from "../apis/apiCalls";
@@ -21,11 +23,11 @@ const Config = (props) =>{
     const [botEnabled, setBotEnabled] = useState(false);
     const [buyType, setBuyType] = useState("limit");
     const [cronValue, setCronValue] = useState("1 1 1 1 1");
-    const [nextCronDate, setNextCronDate] = useState("");
-    const [nextCronDate2, setNextCronDate2] = useState("");
     const [buySize, setBuySize] = useState(10);
     const [limitOrderDiff, setLimitOrderDiff] = useState(1);
     const [configId, setConfigId] = useState("");
+    const [nextCronDates, setNextCronDates] = useState([]);
+    const [showDatesModal, setShowDatesModal] = useState(false);
 
     let minBuySize = process.env.REACT_APP_MIN_BUY_SIZE;
 
@@ -43,6 +45,14 @@ const Config = (props) =>{
     const fixedWidth = {
         maxWidth: "250px",
         width: "250px"
+    }
+
+    const closeDatesModal = () =>{
+        setShowDatesModal(false)
+    }
+    
+    const clickShowDatesModal= (order) => {
+        setShowDatesModal(true);
     }
 
     useEffect(() =>{
@@ -66,14 +76,17 @@ const Config = (props) =>{
             currentDate: new Date(),
             tz: 'America/New_York'
         };
-        let nextDate = cronParser.parseExpression(value , cronOptions).next();
-        cronOptions = {
-            currentDate: nextDate,
-            tz: 'America/New_York'
-        };
-        let nextDate2 = cronParser.parseExpression(value, cronOptions).next();
-        setNextCronDate(nextDate.toString())
-        setNextCronDate2(nextDate2.toString());
+        let nextDate;
+        let buyDates = [];
+        for(let x=0;x<10;x++){
+            nextDate = cronParser.parseExpression(value , cronOptions).next();
+            buyDates.push(nextDate.toString());
+            cronOptions = {
+                currentDate: nextDate,
+                tz: process.env.REACT_APP_TIMEZONE
+            };
+        }
+        setNextCronDates(buyDates);
     }
 
     const saveChanges = (config) => new Promise(function(resolve, reject) {
@@ -116,10 +129,6 @@ const Config = (props) =>{
             {saveSuccess ? saveErrorMsg : ""}
         </span>
     )
-
-    
-                        
-
 
     let configLayout = (
         <div className="centerFlex" >
@@ -185,7 +194,7 @@ const Config = (props) =>{
                         </Form.Control.Feedback>
                         
                         
-                        <div className="input-group mb-3">
+                        <div className="input-group mb-3" data-tip="Crontab syntax is used to<br>schedule buy intervals">
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
                                 <FontAwesomeIcon className={"nowrap fas danger"} icon={faClock} />  
@@ -195,14 +204,14 @@ const Config = (props) =>{
                                 disabled={!editMode}
                                 type="input"
                                 isInvalid={!!errors.cronValue} name="cronValue" error={errors} onChange={handleChange} as={Form.Control}
-                            />
-                            
+                            />                     
                         </div>
+                        <div><a href="#" onClick={clickShowDatesModal}>Preview next 10 orders...</a></div> 
                             <Form.Control.Feedback style={feedbackStyle} type="invalid">
                                 {errors.cronValue} <br />
                             </Form.Control.Feedback>
                         
-                            <div className="input-group mb-3 centerFlex">
+                            <div className="input-group mb-3 centerFlex" data-tip="Specify order type.">
                             <Form.Check inline
                                 disabled={!editMode} 
                                 name="buyType"
@@ -224,7 +233,9 @@ const Config = (props) =>{
                         </div>
                         
 
-                        <div className="input-group mb-3" style={{display: values.buyType==="market" ? "none" : ""}}>
+                        <div className="input-group mb-3" style={{display: values.buyType==="market" ? "none" : ""}}
+                            data-tip="Set percentage by which<br> order should undercut <br>current market price"
+                            >
                             <div className="input-group-prepend">
                             <span className="input-group-text" id="basic-addon1">
                                 <FontAwesomeIcon className={"nowrap fas "} icon={faPercent} />  
@@ -294,12 +305,20 @@ const Config = (props) =>{
                 
                 
             </Formik>
-                      
+            <Modal
+                open={showDatesModal}
+                onClose={closeDatesModal}
+                classNames={{
+                    overlay: "customOverlay",
+                    modal: "customModal"
+                }}
+            >   
+                <strong>Next 10 scehduled buys...</strong>
+                <br /><br />
+                <DatesPreview buyDates={nextCronDates} />
+            </Modal>
+            
             <br />
-            <br />
-            Preview of next scheduled buys... 
-            <br />1: {nextCronDate}
-            <br />2: {nextCronDate2}
             </div>
         </div>
     )

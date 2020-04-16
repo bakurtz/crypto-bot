@@ -9,20 +9,15 @@ import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchan
 import { PlaceOrderMessage } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { OrderType } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
+const Order = require('../../orders/schemas/Order');
 import * as CBPTT from 'coinbase-pro-trading-toolkit';
-import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';   
-import axios from 'axios';
+import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';
 const Log = require('../../../server/common/schemas/Log');
 
 require('dotenv').config();
 
-let instance = axios.create({
-    baseURL: process.env.API_URL,
-    timeout: 10000,
-    headers: {}
-});
 
-module.exports = function (differential: number, dollarAmt: number, orderTypeInput: string){
+module.exports = (differential: number, dollarAmt: number, orderTypeInput: string) => {
     const logger = CBPTT.utils.ConsoleLoggerFactory();
     const product = "BTC-USD";
     let marketPrice: number;
@@ -40,48 +35,6 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
     };
 
     const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
-
-    coinbasePro.loadMidMarketPrice(product).then((price: BigJS) => {
-        console.log("Setting Order Price to: "+(Number(price) - (Number(price) * buyDifferential)).toFixed(2));
-        marketPrice = Number(price.toFixed(8));
-    })
-    .then(()=>{
-        coinbasePro.placeOrder(buildOrder()).then((o: LiveOrder) => {
-            return coinbasePro.loadOrder(o.id);
-        }).then((order: any) => {
-            instance.post('/order/add', {
-                order,
-                dollarAmt
-            })
-            .then((response) => {console.log("Coinbase order placed, and successful write to local db.")})
-            .catch(err => console.log("Coinbase success, but failed to write order to local DB.",err))
-            let log = new Log(
-                {
-                    type: "New order placed",
-                    message: "New order has been placed: "+order.id,
-                    logLevel: "info",
-                    data: JSON.stringify(order)
-                }
-            )
-            log.save( (err: any) => {
-                if(err) console.log(err)
-            })
-        }).catch((err: any)=>{
-            let failedMessage = JSON.parse(err.response.body).message;
-            console.log(failedMessage)
-            let order = buildOrder();
-            instance.post('/order/logFailed', {
-                order,
-                dollarAmt,
-                failedMessage
-            })
-            .then((response) => {console.log("Failed order. Successful API CALL")})
-            .catch(err => console.log("Attempt to write failed order to DB failed."))
-        });
-    })
-    .catch((err)=>{
-        console.log(err)
-    });
 
     const buildOrder = () => {
         let otype: OrderType;
@@ -101,4 +54,62 @@ module.exports = function (differential: number, dollarAmt: number, orderTypeInp
         };
         return order;
     }
+
+    coinbasePro.loadMidMarketPrice(product).then((price: BigJS) => {
+        console.log("Setting Order Price to: "+(Number(price) - (Number(price) * buyDifferential)).toFixed(2));
+        marketPrice = Number(price.toFixed(8));
+    })
+    .then(()=>{
+        coinbasePro.placeOrder(buildOrder()).then((o: LiveOrder) => {
+            return coinbasePro.loadOrder(o.id);
+        }).then((o: any) => {
+            let myOrder = new Order({
+                _id: o.id,
+                id: o.id,
+                price: o.price,//.toFixed(8), //big number
+                size: o.size,//.toFixed(8), //big number
+                totalUsdSpent: dollarAmt,
+                marketPrice: marketPrice,
+                lastSyncDate: new Date(),
+                time: o.time,
+                productId: o.productId,
+                status: o.status,
+                profile_id: o.extra.profile_id,
+                side: o.extra.side,
+                type: o.extra.type,
+                post_only: o.extra.post_only,
+                created_at: o.extra.created_at,
+                fill_fees: o.extra.fill_fees,
+                filled_size: o.extra.filled_size,
+                exectued_value: o.extra.exectued_value,
+                fills: []
+            })
+            myOrder.save((err: any)=>{
+                if(err) return console.log("Error writing new order data to mongodb.");
+                console.log("Coinbase order placed, and successful write to local db.");
+                let log = new Log.model(
+                    {
+                        type: "New order placed",
+                        message: "New order has been placed: "+myOrder.id,
+                        logLevel: "info",
+                        data: JSON.stringify(myOrder)
+                    }
+                )
+                log.save( (err: any) => {
+                    if(err) console.log(err)
+                })
+                return;
+            });
+            
+        }).catch(err=>{
+            console.log("Error placing order on CB.")
+            let failedMessage = JSON.parse(err.response.body).message;
+            let log = new Log.model({ type: "Failed Order",   message: "Failed order. "+failedMessage+".",logLevel: "error",data: JSON.stringify})
+            log.save((err: any)=>{
+                if(err) return console.log("Error writing failed order to log.");
+                return;
+            })
+        })
+    })
 }
+

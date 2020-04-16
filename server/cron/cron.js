@@ -22,14 +22,14 @@ const kill = exports.kill = () => {
     }
 }
 
-const set = exports.set = (config) => {
+const set = exports.set = (config, token) => {
     if(config.botEnabled){
         if(cron.validate(config.cronValue)){
             cronTask = cron.schedule(config.cronValue, () =>  {
-                placeOrder(config.limitOrderDiff, config.buySize, config.buyType);
+                placeOrder(config.limitOrderDiff, config.buySize, config.buyType, token);
             })
             console.log("New cron set: "+config.cronValue)
-            let log = new Log.model({type: "Crontab set", message: "New cron task strarted: "+config.cronValue,logLevel: "info", data: config.cronValue})
+            let log = new Log.model({type: "Crypto-bot enabled", message: "Crypto-bot enabled with cron: "+config.cronValue,logLevel: "info", data: config.cronValue})
             log.save( err => { if(err) console.log(err) })
         }
         else{
@@ -42,7 +42,7 @@ const set = exports.set = (config) => {
         if(cronTask) {
             cronTask.destroy();
             let log = new Log.model(
-                {type: "Crontab destroyed", message: "Cron job destroyed.",logLevel: "info", data: config.cronValue}
+                {type: "Crypto-bot disabled", message: "Crypto-bot disabled.",logLevel: "info", data: config.cronValue}
             )
             log.save( err => {
                 if(err) console.log(err)

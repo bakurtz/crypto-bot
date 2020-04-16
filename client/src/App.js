@@ -95,7 +95,7 @@ function App() {
   let nav = (
     <nav className="Nav">
           <ul>
-            <li><NavLink activeStyle={{
+            <li><NavLink exact activeStyle={{
                           fontWeight: "bold",
                           borderBottomColor: "rgb(74, 88, 146)",
                           borderBottomWidth: 2,

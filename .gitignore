@@ -7,3 +7,7 @@ client/.env
 #Node Modules
 /node_modules
 client/node_modules
+
+#Certs
+client/certs
+certs
