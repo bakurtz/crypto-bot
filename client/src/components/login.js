@@ -64,7 +64,7 @@ const Login = (props) =>{
             type="password"
           />
         </FormGroup>
-        <Button block disabled={!isValid} type="submit">
+        <Button block disabled={false} type="submit">
           Login
         </Button>
         <pre style={divStyle}><span style={divStyle}>{serverReply}</span></pre>

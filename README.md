@@ -4,12 +4,12 @@
 
 [![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)  
 
-Crypto DCA Bot is an open sourced app I built to help me dollar-cost-average investments into Bitcoin. This app contains several features not avaialbe via the official CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. It also makes available additional trade data not normally visible via CBP.   
+Crypto DCA Bot is an open sourced app I built to dollar-cost-average investments into Bitcoin. This app contains several features not avaialbe via the official CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. It also makes available some trade data not normally visible via CBP.   
   
-I am open-sourcing this purely to help others who may be interested in saving work for themselves. Please use at your own risk, and never share your API keys.
+Please use at your own risk, and never share your API keys.
 
 
-<img src="http://g.recordit.co/ihqjdu04MS.gif"
+<img src="http://g.recordit.co/nq23eeVnMA.gif"
      alt="App overveiw"
      style="margin-right: 0 auto;" />  
   
