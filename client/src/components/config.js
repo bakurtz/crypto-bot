@@ -206,10 +206,10 @@ const Config = (props) =>{
                                 isInvalid={!!errors.cronValue} name="cronValue" error={errors} onChange={handleChange} as={Form.Control}
                             />                     
                         </div>
-                        <div><a href="#" onClick={clickShowDatesModal}>Preview next 10 orders...</a></div> 
                             <Form.Control.Feedback style={feedbackStyle} type="invalid">
                                 {errors.cronValue} <br />
                             </Form.Control.Feedback>
+                        <div><a href="#" onClick={clickShowDatesModal}>Preview next 10 orders...</a></div> 
                         
                             <div className="input-group mb-3 centerFlex" data-tip="Specify order type.">
                             <Form.Check inline

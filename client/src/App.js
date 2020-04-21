@@ -56,15 +56,13 @@ function App() {
       }).catch(err=>console.log("Unable to get aaccount balances.",err))
     }
   }
-
+  
   useEffect(() =>{
     if(localStorage.getItem("jwt-access-token")){
       getMarketPrice();
       getAccountBalances();
     }
   },[])
-
- 
 
   const HomeDisplay = () => {
     if(localStorage.getItem("jwt-access-token")){
@@ -154,7 +152,7 @@ function App() {
           <Route path="/login" exact render={ (props) => <Login {...props}  handleLogin={handleLogin} /> } />
           <PrivateRoute path="/orders" exact render={()=>OrdersDisplay()} />
           <Route path="/about" exact component={About} />
-          <PrivateRoute path="/admin" exact component={Admin} />
+          <Route path="/admin" exact component={Admin} />
           <br /><br /><br />
       
       

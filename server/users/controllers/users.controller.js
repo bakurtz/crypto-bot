@@ -27,6 +27,13 @@ exports.list = (req, res) => {
         })
 };
 
+exports.count = (req, res) => {
+    UserModel.count()
+        .then((result) => {
+            res.json({ success: true, data: result })
+        })
+};
+
 exports.getById = (req, res) => {
     UserModel.findById(req.params.userId)
         .then((result) => {

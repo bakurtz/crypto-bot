@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const UserModel = require('../../users/models/users.model');
 require('dotenv').config();
 
 const jwtSecret = process.env.JWT_SECRET
@@ -43,4 +44,31 @@ exports.validJWTNeeded = (req, res, next) => {
     } else {
         return res.status(401).send();
     }
+};
+
+exports.noUsersExist = (req, res, next) => {
+    UserModel.count().then(resp=>{
+        console.log("IN VALIDATION. noUserExit...:",resp)
+        if(resp>0) return res.status(403).send();
+        if(resp===0) return next();
+    }).catch(err=>{
+        console.log(err);
+    })
+    // if (req.headers['authorization']) {
+    //     try {
+    //         let authorization = req.headers['authorization'].split(' ');
+    //         if (authorization[0] !== 'Bearer') {
+    //             return res.status(401).send();
+    //         } else {
+    //             req.jwt = jwt.verify(authorization[1], jwtSecret);
+    //             return next();
+    //         }
+
+    //     } catch (err) {
+    //         console.log("INVALID JWT!!!",err)
+    //         return res.status(403).send();
+    //     }
+    // } else {
+    //     return res.status(401).send();
+    // }
 };

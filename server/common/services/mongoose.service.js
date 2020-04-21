@@ -13,7 +13,6 @@ const options = {
 };
 
 let dbString = process.env.MONGO_PROD_URL|| process.env.MONGO_URL_DEV;
-console.log(dbString)
 const connectWithRetry = () => {
     console.log('MongoDB connection with retry')
     mongoose.connect(dbString, options).then(()=>{

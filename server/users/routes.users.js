@@ -4,11 +4,16 @@ const ValidationMiddleware = require('../common/middlewares/auth.validation.midd
 
 exports.routesConfig = function (app) {
     app.post('/users', [
+        ValidationMiddleware.noUsersExist,
         UsersController.insert
     ]);
     app.get('/users', [
         //ValidationMiddleware.validJWTNeeded,
         UsersController.list
+    ]);
+    app.get('/users/count', [
+        //ValidationMiddleware.validJWTNeeded,
+        UsersController.count
     ]);
     app.get('/users/:userId', [
         //ValidationMiddleware.validJWTNeeded,

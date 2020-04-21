@@ -58,6 +58,17 @@ exports.list = (perPage, page) => {
     });
 };
 
+exports.count = () => {
+    return new Promise((resolve, reject) => {
+        let query = {};
+        User.countDocuments(query,(err, count)=>{
+            if(err) reject(err);
+            console.log("COUNT RESOULT",count);
+            resolve(count);
+        })
+    });
+};
+
 exports.patchUser = (id, userData) => {
     return new Promise((resolve, reject) => {
         User.findById(id, function (err, user) {
