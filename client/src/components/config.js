@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Switch from "react-switch";
 import { isValidCron } from 'cron-validator';
 import '../styles/config.css';
+import '../styles/spinner.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faPencilAlt, faClock, faCheck, faPercent, faExclamation,faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import Button from 'react-bootstrap/Button';

@@ -1,11 +1,13 @@
 const UsersController = require('./controllers/users.controller');
 const PermissionMiddleware = require('../common/middlewares/auth.permission.middleware');
 const ValidationMiddleware = require('../common/middlewares/auth.validation.middleware');
+const AuthorizationController = require('../authorization/controllers/authorization.controller');
 
 exports.routesConfig = function (app) {
     app.post('/users', [
         ValidationMiddleware.noUsersExist,
-        UsersController.insert
+        UsersController.insert,
+        AuthorizationController.login
     ]);
     app.get('/users', [
         //ValidationMiddleware.validJWTNeeded,

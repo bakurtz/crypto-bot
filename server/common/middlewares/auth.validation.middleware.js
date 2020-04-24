@@ -53,6 +53,7 @@ exports.noUsersExist = (req, res, next) => {
         if(resp===0) return next();
     }).catch(err=>{
         console.log(err);
+        res.status(403).send();
     })
     // if (req.headers['authorization']) {
     //     try {
