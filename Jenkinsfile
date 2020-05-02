@@ -8,7 +8,6 @@ pipeline {
             HOME = '.'
         }
     }
-    }
     environment { 
         CI = 'true'
     }
