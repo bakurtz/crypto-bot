@@ -9,6 +9,9 @@ const Register = (props) =>{
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [cbpKey, setCbpKey] = useState("");
+    const [cbpSecret, setCbpSecret] = useState("");
+    const [cbpPassphrase, setCbpPassphrase] = useState("");
     const [isValid, setIsValid] = useState("");
     const [showSpinner, setShowSpinner] = useState(true);
 
@@ -32,7 +35,7 @@ const Register = (props) =>{
     
     const handleSubmit = (event) => {
         event.preventDefault();
-        api().post('/users', {email, password}).then((resp) => {   
+        api().post('/users', {email, password, cbpKey, cbpSecret, cbpPassphrase}).then((resp) => {   
             console.log(resp)
             if(resp.data.id) console.log("User created success!")
         }).catch(err=>console.log("Cannot send auth request.",err))
@@ -78,6 +81,36 @@ const Register = (props) =>{
                 }}
                 type="password"
             />
+            <div><hr /></div>
+            <div className="cbp">
+                <Form.Label>Coinbase Pro Key</Form.Label>
+                <FormControl
+                    value={cbpKey}
+                    onChange={e => {
+                    setCbpKey(e.target.value);
+                    validateForm();
+                    }}
+                    type="text"
+                />
+                <Form.Label>Coinbase Pro Secret</Form.Label>
+                <FormControl
+                    value={cbpSecret}
+                    onChange={e => {
+                    setCbpSecret(e.target.value);
+                    validateForm();
+                    }}
+                    type="text"
+                />
+                <Form.Label>Coinbase Pro Passphrase</Form.Label>
+                <FormControl
+                    value={cbpPassphrase}
+                    onChange={e => {
+                    setCbpPassphrase(e.target.value);
+                    validateForm();
+                    }}
+                    type="text"
+                />
+            </div>
             </FormGroup>
             <Button block disabled={false} type="submit">
             Register
