@@ -8,11 +8,10 @@ pipeline {
         // }
         stage('Build') { 
             steps {
-                sh 'npm install'
-                sh 'cd client'
-                sh 'npm install'
-                sh 'cd ..'
-                sh 'npm run build'
+                sh 'echo *********************'
+                sh 'echo $USER'
+                sh 'pwd'
+                sh 'echo *********************'
             }
         }
     }
