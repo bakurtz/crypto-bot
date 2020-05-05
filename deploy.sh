@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
-./client/node_modules/serve/bin/serve.js -c 0 -s build
+npm install
+(cd client && npm install)
+./client/node_modules/serve/bin/serve.js -s build -l 5001
 sleep 1
 echo $! > .pidfile
