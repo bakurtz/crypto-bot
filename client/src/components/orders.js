@@ -48,7 +48,6 @@ const Orders = (props) =>{
           }}
         >
           <br /><br />
-          {console.log(selectedOrder)}
           <strong>USD spent:</strong>&nbsp; ${Number(selectedOrder.totalUsdSpent)}<br />
           <strong>BTC size:</strong>&nbsp; {Number(selectedOrder.size)}<br />
           <strong>BTC Order Price:</strong>&nbsp; <span>${selectedOrder.price}/BTC</span><br />

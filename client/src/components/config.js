@@ -84,7 +84,7 @@ const Config = (props) =>{
             buyDates.push(nextDate.toString());
             cronOptions = {
                 currentDate: nextDate,
-                tz: process.env.REACT_APP_TIMEZONE
+                tz: "America/New_York"//process.env.REACT_APP_TIMEZONE
             };
         }
         setNextCronDates(buyDates);

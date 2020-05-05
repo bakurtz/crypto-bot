@@ -9,13 +9,6 @@ pipeline {
         CI = 'true'
     }
     stages {
-        stage('Build') {
-            steps {
-                sh 'npm install'
-                sh 'cd client'
-                sh 'npm install'
-            }
-        }
         // stage('Test') {
         //     steps {
         //         sh './jenkins/scripts/test.sh'
@@ -23,9 +16,11 @@ pipeline {
         // }
         stage('Deliver') { 
             steps {
-                sh './jenkins/scripts/deliver.sh' 
-                input message: 'Finished using the web site? (Click "Proceed" to continue)' 
-                sh './jenkins/scripts/kill.sh' 
+                sh 'npm install'
+                sh 'cd client'
+                sh 'npm install'
+                sh 'cd ..'
+                sh 'npm run build'
             }
         }
     }
