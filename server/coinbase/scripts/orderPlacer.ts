@@ -1,16 +1,10 @@
-/*
-    The purpose of this script is to
-    - Check market price
-    - Build and execute a LIMIT order
-    - Push order details to MongoDB
-*/
 import { CoinbaseProExchangeAPI } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProExchangeAPI';
 import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
 import { PlaceOrderMessage } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { OrderType } from 'coinbase-pro-trading-toolkit/build/src/core/Messages';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
+const cbpConfig = require('../common/cbpConfig');
 const Order = require('../../orders/schemas/Order');
-import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';
 const Log = require('../../../server/common/schemas/Log');
 
@@ -18,21 +12,12 @@ require('dotenv').config();
 
 
 module.exports = (differential: number, dollarAmt: number, orderTypeInput: string) => {
-    const logger = CBPTT.utils.ConsoleLoggerFactory();
     const product = "BTC-USD";
     let marketPrice: number;
     let buyDifferential: number = Number(differential/100); //convert differential from % to decimal    
 
 
-    const coinbaseProConfig: CoinbaseProConfig = {
-        logger: logger,
-        apiUrl: process.env.COINBASE_PRO_API_URL,
-        auth: {
-            key: process.env.COINBASE_PRO_KEY,
-            secret: process.env.COINBASE_PRO_SECRET,
-            passphrase: process.env.COINBASE_PRO_PASSPHRASE
-        }
-    };
+    const coinbaseProConfig: CoinbaseProConfig = cbpConfig();
 
     const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
 

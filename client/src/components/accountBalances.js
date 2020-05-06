@@ -23,8 +23,8 @@ const AccountBalances = (props) =>{
         <div style={acctBox} className="acctBox">
           <div><strong>Account Balances:</strong></div>
           <div style={{textAlign:"left"}}>
-            <div >USD: &emsp;${props.acctBalance.usd ? Number(props.acctBalance.usd).toFixed(2) : " ..." } </div>
-            <div >BTC: &emsp; {props.acctBalance.btc ? props.acctBalance.btc : " ..." }</div>
+            <div >USD: &emsp;${props.acctBalance && props.acctBalance.usd ? Number(props.acctBalance.usd).toFixed(2) : " ..." } </div>
+            <div >BTC: &emsp; {props.acctBalance && props.acctBalance.btc ? props.acctBalance.btc : " ..." }</div>
             <hr style={{color:"white", padding: "0px", borderTop: "1px solid rgb(150, 150, 150)", margin: "0px"}} />
             <div className="centerFlex" style={{fontSize:"12px"}}>BTC Market Price: ${props.marketPrice ? props.marketPrice : " ..."}</div>
           </div>

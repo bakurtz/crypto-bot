@@ -12,10 +12,7 @@
  * License for the specific language governing permissions and limitations under the License.                              *
  ***************************************************************************************************************************/
 
-// import { AvailableBalance,
-//     Balances } from 'coinbase-pro-trading-toolkit/build/src/exchanges/AuthenticatedExchangeAPI';
 import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';
-//import { Ticker } from 'coinbase-pro-trading-toolkit/build/src/exchanges/PublicExchangeAPI';
 import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook';
 import { CoinbaseProExchangeAPI } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProExchangeAPI';
 import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
@@ -31,7 +28,7 @@ console.log("BUY DIFF: "+buyDifferential);
 
 const coinbaseProConfig: CoinbaseProConfig = {
     logger: logger,
-    apiUrl: process.env.COINBASE_PRO_API_URL || 'https://api.pro.coinbase.com',
+    apiUrl: process.env.COINBASE_PRO_API_URL || process.env.COINBASE_PRO_API_URL_SANDBOX,
     auth: {
         key: process.env.COINBASE_PRO_KEY,
         secret: process.env.COINBASE_PRO_SECRET,

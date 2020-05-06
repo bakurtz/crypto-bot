@@ -44,7 +44,6 @@ function App() {
 
   const getMarketPrice = () => {
     api().get('/coinbase/getMarketPrice').then((resp) => {
-      console.log(resp.data.data)
       setMarketPrice(resp.data.data);
     }).catch(err=>console.log("Unable to get marketprice.",err))
   }
@@ -52,8 +51,10 @@ function App() {
   const getAccountBalances = () => {
     if(localStorage.getItem("jwt-access-token")){
       api().get('/coinbase/getAccountBalances').then((resp) => {
+        console.log("xxxxxxxxxxxxx",resp.data)
         setAcctBalance(resp.data.data);
       }).catch(err=>console.log("Unable to get aaccount balances.",err))
+      console.log("xxxxxxxxxxxxx")
     }
   }
   

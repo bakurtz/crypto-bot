@@ -30,7 +30,7 @@ module.exports = () => {
     //Prepare coinbase configs
     const coinbaseProConfig: CoinbaseProConfig = {
         logger: logger,
-        apiUrl: process.env.COINBASE_PRO_API_URL,
+        apiUrl: process.env.COINBASE_PRO_API_URL || process.env.COINBASE_PRO_API_URL_SANDBOX,
         auth: {
             key: process.env.COINBASE_PRO_KEY,
             secret: process.env.COINBASE_PRO_SECRET,
