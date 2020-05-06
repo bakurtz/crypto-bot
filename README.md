@@ -1,8 +1,8 @@
-## Crypto DCA Bot by Ryan Miller  
+## Crypto-bot by Ryan Miller  
 
-> :warning: **This app is under development, and not fully tested**: Use at your own risk!
+> :warning: **This app is designed to be self-hosted so that you never need to give anyone your CBP API keys**: Use at your own risk!
 
-Crypto DCA Bot is an open sourced app I built to dollar-cost-average investments into Bitcoin. This app contains several features not avaialbe via the official CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. It also makes available some trade data not normally visible via Coinbase Pro.   
+Crypto-bot is an open sourced app built with the idea of dollar-cost-averaging investments into Bitcoin. This app uses the Coinbase Pro (CBP) API to provide features and data not available via the CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. Using Crypto-bot, you can acheive much lower transaction fees than through other recurring-buy services (e.g. Swan, Coinbase standard, etc.).
   
 Please use at your own risk, and never share your API keys.
 
@@ -14,11 +14,13 @@ Please use at your own risk, and never share your API keys.
 
 ## Installation
 
+This app depends on a MongoDB database. Please install MongoDB before building. 
+
 > Clone the repo to your local machine
 ```
 $   git clone https://github.com/TheRyanMiller/crytpo-bot
 ```
-> At the root of the project, make a copy of the `.env.example` file, and rename it to simply `.env`. Populate this file with your Coinbase API keys and other environment variables.  
+> At the root of the project, make a copy of the `.env.example` file, and rename it to simply `.env`. Populate this file with your Coinbase API keys and other environment variables (e.g. MongoDB connection string and credentials).  
 
 > Do the same for the `.env.example` file in the `/client` directory.  
 
