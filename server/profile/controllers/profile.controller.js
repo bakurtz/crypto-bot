@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const Config = require('../schemas/Config');
 const Log = require('../../common/schemas/Log');
 const cron = require('../../cron/cron');
-const mongoose = require("../common/services/mongoose.service").mongoose;
+const mongoose = require("../..common/services/mongoose.service").mongoose;
 
 exports.listLogs = (req, res) => {
     let query = {};
