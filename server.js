@@ -10,6 +10,7 @@ const CoinbaseRouter = require('./server/coinbase/routes.coinbase');
 const ProfileRouter = require('./server/profile/routes.profile');
 const AuthRouter = require('./server/authorization/routes.authorization');
 const UsersRouter = require('./server/users/routes.users');
+const ProductsRouter = require('./server/products/routes.products');
 const https = require('https');
 const fs = require('fs');
 require('dotenv').config();
@@ -32,6 +33,7 @@ CoinbaseRouter.routesConfig(router);
 ProfileRouter.routesConfig(router);
 AuthRouter.routesConfig(router);
 UsersRouter.routesConfig(router);
+ProductsRouter.routesConfig(router);
 
 cron.initialize();
 

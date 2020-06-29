@@ -56,11 +56,7 @@ const Orders = (props) =>{
           <strong>Order ID:</strong> <span>{selectedOrder.id}</span><br />
           <strong>Status:</strong> <span>{selectedOrder.status}</span><br />
           <strong>Time:</strong> <span>{selectedOrder.time}</span><br />
-          <strong>Percent Filled:</strong><span> {Number(selectedOrder.filled_size) === 0 ? 0 : Number(selectedOrder.size) / Number(selectedOrder.filled_size) * 100} %  </span><br />
-          
-          
-          
-          
+          <strong>Percent Filled:</strong><span> {Number(selectedOrder.filled_size) === 0 ? 0 : Number(selectedOrder.size) / Number(selectedOrder.filled_size) * 100} %  </span><br />   
           <br /><br />
           <OrderDetail order={selectedOrder}></OrderDetail>
           

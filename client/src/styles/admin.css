@@ -16,3 +16,15 @@ input.admin{
     flex-flow: row wrap;
     align-items: center;
   }
+
+.checkbox-grid li {
+    display: block;
+    float: left;
+    width: 25%;
+    color: white;
+}
+
+.checkBoxGrid {
+    padding-top: 20px;
+    text-align: left;
+}

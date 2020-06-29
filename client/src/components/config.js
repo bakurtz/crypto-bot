@@ -12,6 +12,8 @@ import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
 import { api } from "../apis/apiCalls";
 import ReactTooltip from "react-tooltip";
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
 let cronParser = require('cron-parser');
 
 
@@ -29,6 +31,8 @@ const Config = (props) =>{
     const [configId, setConfigId] = useState("");
     const [nextCronDates, setNextCronDates] = useState([]);
     const [showDatesModal, setShowDatesModal] = useState(false);
+    const [productOptions, setProductOptions] = useState([]);
+    const [defaultOption, setDefaultOption] = useState([]);
 
     let minBuySize = process.env.REACT_APP_MIN_BUY_SIZE;
 
@@ -57,20 +61,27 @@ const Config = (props) =>{
     }
 
     useEffect(() =>{
-          api().get('/profile/getConfig').then((resp) => {
-              if(!!resp.data.data){ // In case no data exists in DB
-                let config = resp.data.data;
-                setBotEnabled(config.botEnabled);
-                setCronValue(config.cronValue);
-                setBuySize(config.buySize);
-                setBuyType(config.buyType);
-                setLimitOrderDiff(config.limitOrderDiff);
-                setConfigId(config._id);
-                setBuyDates(config.cronValue);
-              }
-              setIsFetching(false);
-          }).catch(err=>console.log("Cannot get config.",err))
-      },[])
+        getConfig("ETH-USD");
+        getProductOptions();
+    },[]);
+
+    const getConfig = (productid) => {
+        console.log("SUBMITTED PRODUCT: ",productid);
+        api().get('/profile/getConfig',{ params: {product:productid}}).then((resp) => {
+            if(!!resp.data.data){ // In case no data exists in DB
+            let config = resp.data.data;
+            console.log(config)
+            setBotEnabled(config.botEnabled);
+            setCronValue(config.cronValue);
+            setBuySize(config.buySize);
+            setBuyType(config.buyType);
+            setLimitOrderDiff(config.limitOrderDiff);
+            setConfigId(config._id);
+            setBuyDates(config.cronValue);
+            }
+            setIsFetching(false);
+        }).catch(err=>console.log("Cannot get config.",err))
+    }
 
     const setBuyDates = (value) => {
         let cronOptions = {
@@ -131,8 +142,35 @@ const Config = (props) =>{
         </span>
     )
 
+    let selectedNewProduct = (e) => {
+        console.log(e.value)
+        getConfig(e.value)
+    }
+
+    const getProductOptions = () => {
+        api().get('/profile/getAllActiveConfigs').then((resp) => {
+            
+            if(!!resp.data.data){ // In case no data exists in DB
+                let allConfigs = resp.data.data;
+                let options = [];
+                allConfigs.forEach(c=>{
+                    options.push({value:c.id, label:c.id});
+                })
+                setProductOptions(options);
+                setDefaultOption(options[0]);
+            }
+            setIsFetching(false);
+        }).catch(err=>console.log("Cannot get config.",err))
+    }
+    
+
     let configLayout = (
         <div className="centerFlex" >
+            <div className="fontColor center" style={divStyle}>
+            <Dropdown options={productOptions} 
+                onChange={selectedNewProduct} 
+                value={defaultOption} placeholder="Select an option" />
+            </div>
             <div className="fontColor center" style={divStyle}>
             <Formik
                 initialValues={{

@@ -5,6 +5,7 @@ const placeOrder = require('../coinbase/scripts/orderPlacer.ts');
 
 
 let cronTask;
+let cronArray = [];
 
 const initialize = exports.initialize = () =>{
     Config.model.findOne({}).then((data,err) => {
