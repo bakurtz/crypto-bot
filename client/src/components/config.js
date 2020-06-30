@@ -33,6 +33,7 @@ const Config = (props) =>{
     const [showDatesModal, setShowDatesModal] = useState(false);
     const [productOptions, setProductOptions] = useState([]);
     const [defaultOption, setDefaultOption] = useState([]);
+    const [selectedProductId, setSelectedProductId] = useState("");
 
     let minBuySize = process.env.REACT_APP_MIN_BUY_SIZE;
 
@@ -61,7 +62,7 @@ const Config = (props) =>{
     }
 
     useEffect(() =>{
-        getConfig("ETH-USD");
+        getConfig("BTC-USD");
         getProductOptions();
     },[]);
 
@@ -69,15 +70,14 @@ const Config = (props) =>{
         console.log("SUBMITTED PRODUCT: ",productid);
         api().get('/profile/getConfig',{ params: {product:productid}}).then((resp) => {
             if(!!resp.data.data){ // In case no data exists in DB
-            let config = resp.data.data;
-            console.log(config)
-            setBotEnabled(config.botEnabled);
-            setCronValue(config.cronValue);
-            setBuySize(config.buySize);
-            setBuyType(config.buyType);
-            setLimitOrderDiff(config.limitOrderDiff);
-            setConfigId(config._id);
-            setBuyDates(config.cronValue);
+                let config = resp.data.data;
+                setBotEnabled(config.botEnabled);
+                setCronValue(config.cronValue);
+                setBuySize(config.buySize);
+                setBuyType(config.buyType);
+                setLimitOrderDiff(config.limitOrderDiff);
+                setConfigId(config._id);
+                setBuyDates(config.cronValue);
             }
             setIsFetching(false);
         }).catch(err=>console.log("Cannot get config.",err))
@@ -102,11 +102,13 @@ const Config = (props) =>{
     }
 
     const saveChanges = (config) => new Promise(function(resolve, reject) {
-        api().post('/profile/saveConfig', {params: config}).then((resp) => {
+        config.id = selectedProductId;
+        api().post('/profile/saveConfig', { params: config}).then((resp) => {
             //We need to get the response and fill the values
             console.log(resp);
             if(resp.data.success===false){
-                setSaveErrorMsg(resp.data.error);
+                console.log("ERROR SAVE ",resp.data)
+                setSaveErrorMsg(resp.data.error.errmsg);
                 setSaveError(true);
             }
             else{
@@ -144,6 +146,7 @@ const Config = (props) =>{
 
     let selectedNewProduct = (e) => {
         console.log(e.value)
+        setSelectedProductId(e.value);
         getConfig(e.value)
     }
 
@@ -169,7 +172,7 @@ const Config = (props) =>{
             <div className="fontColor center" style={divStyle}>
             <Dropdown options={productOptions} 
                 onChange={selectedNewProduct} 
-                value={defaultOption} placeholder="Select an option" />
+                value={selectedProductId} placeholder="Select an option" />
             </div>
             <div className="fontColor center" style={divStyle}>
             <Formik

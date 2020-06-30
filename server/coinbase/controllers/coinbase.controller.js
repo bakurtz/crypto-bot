@@ -7,11 +7,12 @@ exports.placeOrder = (req, res) => {
         differential = process.env.BUY_DIFFERENTIAL;
     }
     else{
+        let product = req.body.params.product;
         let differential = req.body.params.differential;
         let dollarAmt = req.body.params.buySize;
         let orderType = req.body.params.orderType;
     }
-    placeOrder(differential, dollarAmt, orderType);
+    placeOrder(product, differential, dollarAmt, orderType);
     return res.json({ success: true, data: null });
 };
 

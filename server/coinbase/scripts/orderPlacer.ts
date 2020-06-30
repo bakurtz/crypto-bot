@@ -11,8 +11,7 @@ const Log = require('../../../server/common/schemas/Log');
 require('dotenv').config();
 
 
-module.exports = (differential: number, dollarAmt: number, orderTypeInput: string) => {
-    const product = "BTC-USD";
+module.exports = (product: string, differential: number, dollarAmt: number, orderTypeInput: string) => {
     let marketPrice: number;
     let buyDifferential: number = Number(differential/100); //convert differential from % to decimal    
 
@@ -74,8 +73,8 @@ module.exports = (differential: number, dollarAmt: number, orderTypeInput: strin
                 console.log("Coinbase order placed, and successful write to local db.");
                 let log = new Log.model(
                     {
-                        type: "New order placed",
-                        message: "New order has been placed: "+myOrder.id,
+                        type: "New "+product+" order placed",
+                        message: "New  "+product+" order has been placed: "+myOrder.id,
                         logLevel: "info",
                         data: JSON.stringify(myOrder)
                     }

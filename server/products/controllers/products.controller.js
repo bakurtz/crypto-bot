@@ -3,12 +3,10 @@ const Config = require('../../profile/schemas/Config');
 const crypto = require('crypto');
 
 exports.refreshAvailableProducts = (req, res) => {
-    console.log("AJlsd;jgl;dsf!!!!!!!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~")
     let configs;
     let config;
     Config.model.find({}).then(results=>{
         configs = results;
-        console.log(configs)
         res.status(200).send({data: configs});  
     })
     require('../../coinbase/scripts/getProducts.ts')().then(products=>{
@@ -34,7 +32,7 @@ exports.refreshAvailableProducts = (req, res) => {
                     })
                     //let product = new Product.model(p);
                     config.save().then(res=>{
-                        if(res) console.log("WOOT!!",res)
+                        //
                     }).catch(err => console.log(err))
                 }
             }
@@ -44,7 +42,6 @@ exports.refreshAvailableProducts = (req, res) => {
 };
 
 exports.updateProductConfig = (req, res) => {
-    console.log("UPDATING PRODUCT CONFIG...")
     req.body.params.forEach(p=>{
         let product = new Product.model(p);
         Product.model.findOneAndUpdate(
@@ -61,5 +58,5 @@ exports.updateProductConfig = (req, res) => {
 };
 
 exports.getSelectedProducts = (req, res) => {
-    console.log("INSER SELECTED PRODS")
+    //
 };

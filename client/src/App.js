@@ -18,6 +18,25 @@ function App() {
   const [acctBalance, setAcctBalance] = useState({});
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [productList, setProductList] = useState([]);
+
+  useEffect(() =>{
+    if(localStorage.getItem("jwt-access-token")){
+      api().get('/profile/getAllActiveConfigs').then((resp) => {
+            
+        if(!!resp.data.data){ // In case no data exists in DB
+            let allConfigs = resp.data.data;
+            let products = [];
+            allConfigs.forEach(c=>{
+              products.push(c.id);
+            })
+            setProductList(products);
+        }
+      }).catch(err=>console.log("Cannot get config.",err))
+      getMarketPrice(productList);
+      getAccountBalances(productList);
+    }
+  },[])
 
   const syncOrders = () => {
     setIsSyncing(true);
@@ -55,13 +74,6 @@ function App() {
       }).catch(err=>console.log("Unable to get aaccount balances.",err))
     }
   }
-  
-  useEffect(() =>{
-    if(localStorage.getItem("jwt-access-token")){
-      getMarketPrice();
-      getAccountBalances();
-    }
-  },[])
 
   const HomeDisplay = () => {
     if(localStorage.getItem("jwt-access-token")){
