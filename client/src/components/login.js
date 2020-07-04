@@ -9,8 +9,6 @@ const Login = (props) =>{
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [serverReply, setServerReply] = useState("");
-  const [isValid, setIsValid] = useState(false);
-  const [mustRegister, setMustRegister] = useState(false);
   const [showSpinner, setShowSpinner] = useState(true);
 
   let history = useHistory();
@@ -33,7 +31,7 @@ const Login = (props) =>{
   }
 
   function validateForm() {
-    setIsValid(email.length > 0 && password.length > 0);
+    console.log("Run some validation")
   }
 
   const divStyle = {

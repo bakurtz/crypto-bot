@@ -5,12 +5,20 @@ const placeOrder = require('../coinbase/scripts/orderPlacer.ts');
 
 
 let cronTask;
+let cronArray = [];
+let newTask;
+
 
 const initialize = exports.initialize = () =>{
-    Config.model.findOne({}).then((data,err) => {
-        if(data && data.cronValue){
-            let cronValue = data.cronValue;
-            set(data);
+    // Loop thru all configs for BOTENABLED
+    // Schedule Each individual cron 
+    Config.model.find({isActive:true}).then((data,err) => {
+        if(data){
+            data.forEach(c => {
+                if(c.cronValue && c.botEnabled){
+                    set(c);
+                }
+            })
         }
     })
 }
@@ -25,28 +33,44 @@ const kill = exports.kill = () => {
 const set = exports.set = (config, token) => {
     if(config.botEnabled){
         if(cron.validate(config.cronValue)){
-            cronTask = cron.schedule(config.cronValue, () =>  {
-                placeOrder(config.limitOrderDiff, config.buySize, config.buyType, token);
-            })
-            console.log("New cron set: "+config.cronValue)
+            newTask = cron.schedule(config.cronValue, () =>  {
+                placeOrder(config.id, config.limitOrderDiff, config.buySize, config.buyType, token);
+            });
+            cronArray.push({id: config.id, task: newTask, schedule: config.cronValue})
+            console.log("New cron set for "+config.id+": "+config.cronValue)
             let log = new Log.model({type: "Crypto-bot enabled", message: "Crypto-bot enabled with cron: "+config.cronValue,logLevel: "info", data: config.cronValue})
             log.save( err => { if(err) console.log(err) })
+            //CHECK ARRAY
+            console.log("~~~CronArray has been Updated:")
+            cronArray.forEach(c=>{
+                console.log(c.id,c.schedule,c.task.getStatus())
+            })
+            console.log("~~~")
         }
         else{
             errorText = "Invalid cron entry."
             console.log(errorText);
-            return res.json({ success: false, error: errorText });
+            return res.json({ success: false, error: errorText});
         }
     }
     else{
-        if(cronTask) {
-            cronTask.destroy();
-            let log = new Log.model(
-                {type: "Crypto-bot disabled", message: "Crypto-bot disabled.",logLevel: "info", data: config.cronValue}
-            )
-            log.save( err => {
-                if(err) console.log(err)
-            })
+        //Find cron task and kill it
+        for(let i = cronArray.length-1; i>=0; i--){
+            if(cronArray[i].id == config.id) {
+                cronArray[i].task.destroy();
+                cronArray.splice(i,1)
+                let log = new Log.model(
+                    {type: "Disabled schedule", message: "Disabled "+config.id,logLevel: "info", data: config.cronValue}
+                )
+                log.save( err => {
+                    if(err) console.log(err)
+                })
+            }
         }
+        console.log("~~~CronArray has been Updated:")
+            cronArray.forEach(c=>{
+                console.log(c.id,c.schedule,c.task.getStatus())
+            })
+        console.log("~~~")
     }
 }

@@ -1,15 +1,22 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const product = require('./Product');
 
 const ConfigSchema = new Schema(
   {
-    _id: String,
     id: String,
+    product: {
+      type:product.schema,
+      default: {}
+    },
     botEnabled: Boolean,
     buySize: Number, //big number
     buyType: String,
     limitOrderDiff: Number, //big number
-    cronValue: String
+    cronValue: String,
+    isActive: Boolean, //User has set this active
+    isAvailable: Boolean, //User has this product available in API
+    isDefault: Boolean
   }
 );
 

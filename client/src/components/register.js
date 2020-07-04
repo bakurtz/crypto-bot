@@ -12,7 +12,6 @@ const Register = (props) =>{
     const [cbpKey, setCbpKey] = useState("");
     const [cbpSecret, setCbpSecret] = useState("");
     const [cbpPassphrase, setCbpPassphrase] = useState("");
-    const [isValid, setIsValid] = useState("");
     const [showSpinner, setShowSpinner] = useState(true);
 
     useEffect(() =>{
@@ -42,7 +41,7 @@ const Register = (props) =>{
     }
 
     function validateForm() {
-        setIsValid(email.length > 0 && password.length > 0);
+        //setIsValid(email.length > 0 && password.length > 0);
     }
 
     let register = ( 

@@ -15,9 +15,31 @@ import './styles/nav.css';
 function App() {
   const [orders, setOrders] = useState([]);
   const [marketPrice, setMarketPrice] = useState(0);
-  const [acctBalance, setAcctBalance] = useState({});
+  const [acctBalances, setAcctBalances] = useState([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState("");
+
+  useEffect(() =>{
+    if(localStorage.getItem("jwt-access-token")){
+      api().get('/profile/getAllActiveConfigs').then((resp) => {
+            
+        if(!!resp.data.data){ // In case no data exists in DB
+            let allConfigs = resp.data.data;
+            let products = [];
+            allConfigs.forEach(c=>{
+              products.push(c.id);
+            })
+        }
+      }).catch(err=>console.log("Cannot get config.",err))
+      if(selectedProduct) getMarketPrice(selectedProduct);
+      getAccountBalances();
+    }
+  },[])
+
+  useEffect(() =>{
+    if(selectedProduct) getMarketPrice(selectedProduct);
+  },[selectedProduct])
 
   const syncOrders = () => {
     setIsSyncing(true);
@@ -42,26 +64,21 @@ function App() {
     }).catch(err=>console.log("Unable to get users orders.",err))
   }
 
-  const getMarketPrice = () => {
-    api().get('/coinbase/getMarketPrice').then((resp) => {
-      setMarketPrice(resp.data.data);
-    }).catch(err=>console.log("Unable to get marketprice.",err))
+  const getMarketPrice = (product) => {
+    if(localStorage.getItem("jwt-access-token")){
+      api().get('/coinbase/getMarketPrice', { params: { productId : product.id } }).then((resp) => {
+        setMarketPrice(resp.data.data);
+      }).catch(err=>console.log("Unable to get marketprice.",err))
+    }
   }
 
   const getAccountBalances = () => {
     if(localStorage.getItem("jwt-access-token")){
       api().get('/coinbase/getAccountBalances').then((resp) => {
-        setAcctBalance(resp.data.data);
+        setAcctBalances(resp.data.data);
       }).catch(err=>console.log("Unable to get aaccount balances.",err))
     }
   }
-  
-  useEffect(() =>{
-    if(localStorage.getItem("jwt-access-token")){
-      getMarketPrice();
-      getAccountBalances();
-    }
-  },[])
 
   const HomeDisplay = () => {
     if(localStorage.getItem("jwt-access-token")){
@@ -69,9 +86,16 @@ function App() {
     }
     return (
       <>
-        <Config />
+        <Config 
+          selectedProduct={selectedProduct} 
+          handleNewProductSelect={handleNewProductSelect} />
       </>
     )
+  }
+
+  let handleNewProductSelect = (e) => {
+    
+    setSelectedProduct(e.value);
   }
 
   const OrdersDisplay = () => {
@@ -85,9 +109,14 @@ function App() {
     )
   }
 
-  let accountBalances = (
-    <AccountBalances acctBalance={acctBalance} marketPrice={marketPrice} />
-  )
+  let accountBalances = () => {
+    return (
+      <AccountBalances 
+        acctBalances={acctBalances} 
+        activeProduct={selectedProduct} 
+        marketPrice={marketPrice} />
+    )
+  }
 
   let nav = (
     <nav className="Nav">
@@ -125,7 +154,7 @@ function App() {
     if(valid) {
       setIsLoggedIn(true);
       getAccountBalances();
-      getMarketPrice();
+      if(selectedProduct) getMarketPrice(selectedProduct);
     }
     else{
       setIsLoggedIn(false);
@@ -143,7 +172,7 @@ function App() {
     <div className="App center">
       <header className="App-header">
         { localStorage.getItem("jwt-access-token") ? nav : "" }
-        { localStorage.getItem("jwt-access-token") ? accountBalances : "" }
+        { localStorage.getItem("jwt-access-token") ? accountBalances() : "" }
       </header>
           
           <PrivateRoute isAuthenticated={isLoggedIn} path="/" exact render={()=>HomeDisplay()} />

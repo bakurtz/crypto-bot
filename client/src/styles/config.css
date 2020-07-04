@@ -34,3 +34,8 @@ input.form-control:disabled, .form-control[readonly]{
     margin: 5px;
 }
 
+.selectBox{
+    color: white;
+    width: 170px;
+}
+

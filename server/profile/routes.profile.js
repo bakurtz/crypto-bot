@@ -12,9 +12,19 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         ProfileController.getConfig
     ]);
+
+    app.get('/profile/getAllActiveConfigs', [
+        ValidationMiddleware.validJWTNeeded,
+        ProfileController.getAllActiveConfigs
+    ]);
     
     app.post('/profile/saveConfig', [
         ValidationMiddleware.validJWTNeeded,
         ProfileController.saveConfig
+    ]);
+
+    app.post('/profile/setActive', [
+        ValidationMiddleware.validJWTNeeded,
+        ProfileController.setActive
     ]);
 };

@@ -1,6 +1,5 @@
 import { CoinbaseProExchangeAPI } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProExchangeAPI';
 import { CoinbaseProConfig } from 'coinbase-pro-trading-toolkit/build/src/exchanges/coinbasePro/CoinbaseProInterfaces';
-//import cbpConfig from '../common/cbpConfigFxn';
 const cbpConfig = require('../common/cbpConfig');
 require('dotenv').config();
 
@@ -9,8 +8,7 @@ module.exports = (id: string) => new Promise((resolve,reject)=>{
     const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
     coinbasePro.loadBalances().then( (resp) =>{
         resolve({
-            btc: resp[Object.keys(resp)[0]].BTC.available.toString(),
-            usd: resp[Object.keys(resp)[0]].USD.available.toString()
+            data: resp[Object.keys(resp)[0]]
         }) 
     })
 })
