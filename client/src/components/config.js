@@ -12,8 +12,7 @@ import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
 import { api } from "../apis/apiCalls";
 import ReactTooltip from "react-tooltip";
-import Dropdown from 'react-dropdown';
-import 'react-dropdown/style.css';
+import Select from 'react-select';
 let cronParser = require('cron-parser');
 
 
@@ -32,10 +31,9 @@ const Config = (props) =>{
     const [nextCronDates, setNextCronDates] = useState([]);
     const [showDatesModal, setShowDatesModal] = useState(false);
     const [productOptions, setProductOptions] = useState([]);
-    const [defaultOption, setDefaultOption] = useState([]);
-    const [selectedProductId, setSelectedProductId] = useState("");
+    const [defaultOption, setDefaultOption] = useState("");
 
-    let minBuySize = process.env.REACT_APP_MIN_BUY_SIZE;
+    let minBuySize = 10;
 
     const divStyle = {
         fontSize: "14px",
@@ -62,25 +60,39 @@ const Config = (props) =>{
     }
 
     useEffect(() =>{
-        getConfig("BTC-USD");
         getProductOptions();
     },[]);
 
+    
+
+    useEffect(() =>{
+        if(defaultOption){
+            getConfig(defaultOption);
+            props.handleNewProductSelect({value: defaultOption});
+        }
+    },[defaultOption]);
+            
+    useEffect(() =>{
+        setIsFetching(true);
+        if(props.selectedProduct) getConfig(props.selectedProduct.id);
+    },[props.selectedProduct]);
+
     const getConfig = (productid) => {
-        console.log("SUBMITTED PRODUCT: ",productid);
-        api().get('/profile/getConfig',{ params: {product:productid}}).then((resp) => {
-            if(!!resp.data.data){ // In case no data exists in DB
-                let config = resp.data.data;
-                setBotEnabled(config.botEnabled);
-                setCronValue(config.cronValue);
-                setBuySize(config.buySize);
-                setBuyType(config.buyType);
-                setLimitOrderDiff(config.limitOrderDiff);
-                setConfigId(config._id);
-                setBuyDates(config.cronValue);
-            }
-            setIsFetching(false);
-        }).catch(err=>console.log("Cannot get config.",err))
+        if(!!productid){
+            api().get('/profile/getConfig',{ params: {product:productid}}).then((resp) => {
+                if(!!resp.data.data){ // In case no data exists in DB
+                    let config = resp.data.data;
+                    setBotEnabled(config.botEnabled);
+                    setCronValue(config.cronValue);
+                    setBuySize(config.buySize);
+                    setBuyType(config.buyType);
+                    setLimitOrderDiff(config.limitOrderDiff);
+                    setConfigId(config._id);
+                    setBuyDates(config.cronValue);
+                }
+                setIsFetching(false);
+            }).catch(err=>console.log("Cannot get config.",err))
+        }
     }
 
     const setBuyDates = (value) => {
@@ -102,10 +114,9 @@ const Config = (props) =>{
     }
 
     const saveChanges = (config) => new Promise(function(resolve, reject) {
-        config.id = selectedProductId;
+        config.id = props.selectedProduct.id;
         api().post('/profile/saveConfig', { params: config}).then((resp) => {
             //We need to get the response and fill the values
-            console.log(resp);
             if(resp.data.success===false){
                 console.log("ERROR SAVE ",resp.data)
                 setSaveErrorMsg(resp.data.error.errmsg);
@@ -143,36 +154,83 @@ const Config = (props) =>{
             {saveSuccess ? saveErrorMsg : ""}
         </span>
     )
-
-    let selectedNewProduct = (e) => {
-        console.log(e.value)
-        setSelectedProductId(e.value);
-        getConfig(e.value)
-    }
-
+    
     const getProductOptions = () => {
         api().get('/profile/getAllActiveConfigs').then((resp) => {
-            
             if(!!resp.data.data){ // In case no data exists in DB
                 let allConfigs = resp.data.data;
                 let options = [];
                 allConfigs.forEach(c=>{
-                    options.push({value:c.id, label:c.id});
+                    options.push({value:c, label:c.id});
+                    if(c.isDefault && c.isDefault===true){
+                        setDefaultOption(c);
+                    } 
+                    setProductOptions(options);
                 })
-                setProductOptions(options);
-                setDefaultOption(options[0]);
             }
-            setIsFetching(false);
         }).catch(err=>console.log("Cannot get config.",err))
     }
-    
+
+    const customStyles = {
+        control: (base, state) => ({
+          ...base,
+          color: "white",
+          background: "#212529",
+          borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
+          borderColor: state.isFocused ? "blue" : "gray",
+          // Removes weird border around container
+          boxShadow: state.isFocused ? null : null,
+          "&:hover": {
+            // Overwrittes the different states of border
+            borderColor: state.isFocused ? "blue" : "gray"
+          }
+        }),
+        option: (base, state) => ({
+            ...base,
+            color: "white",
+            backgroundColor: state.isFocused ? "#212529" : "#212529",
+            borderRadius: 0,
+            background: "#212529",
+            marginTop: 0
+          }),
+        menu: base => ({
+          ...base,
+          color: "white",
+          borderRadius: 0,
+          background: "#212529",
+          marginTop: 0
+        }),
+        menuList: base => ({
+          ...base,
+          color: "white",
+          background: "#212529",
+          padding: 0,
+        }),
+        valueContainer: base => ({
+          ...base,
+          color: "white",
+          background: "#212529",
+          padding: 0
+        }),
+        singleValue: base => ({
+            ...base,
+            color: "white",
+            background: "#212529",
+            padding: 0
+          })
+      };
 
     let configLayout = (
         <div className="centerFlex" >
             <div className="fontColor center" style={divStyle}>
-            <Dropdown options={productOptions} 
-                onChange={selectedNewProduct} 
-                value={selectedProductId} placeholder="Select an option" />
+            <Select 
+                options={productOptions} 
+                onChange={props.handleNewProductSelect} 
+                styles={customStyles}
+                width="150px"
+                value={{label : props.selectedProduct ? props.selectedProduct.id : defaultOption.id }}
+                className="selectBox"
+                placeholder="Select an option" />
             </div>
             <div className="fontColor center" style={divStyle}>
             <Formik
@@ -180,7 +238,7 @@ const Config = (props) =>{
                     id: configId,
                     botEnabled: botEnabled,
                     buyType: buyType ? buyType : "limit",
-                    buySize: buySize ? buySize : "",
+                    buySize: buySize ? buySize : 0,
                     limitOrderDiff: limitOrderDiff ? limitOrderDiff : "",
                     cronValue:cronValue ? cronValue : "1 1 1 1 1"
                 }}

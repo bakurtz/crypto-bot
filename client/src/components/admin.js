@@ -49,19 +49,19 @@ const Admin = (props) =>{
         if(!!products && products.length>0){
             checkboxes = products.map((product,idx) => {
                 return (
-                    <li><input type="checkbox" 
+                    <li key={product.id}><input type="checkbox" 
                         name={product.id} 
                         value={product.id}
                         checked={product.isActive}
                         onChange={()=>productBoxChecked(idx)}
-                        /><label for="text1">{product.id}</label></li>
+                        /><label>{product.id}</label></li>
                 )
             })
         }
         return (
             <div className="checkBoxGrid centerFlex" style={{color:"white"}}>
                 Product Selections:
-                <ul class="checkbox-grid">
+                <ul className="checkbox-grid">
                     {checkboxes}
                 </ul>
             </div>
@@ -81,7 +81,6 @@ const Admin = (props) =>{
         api().post('/products/refreshProducts').then(resp => {   
             let apiProducts = resp.data.data;
             setProducts(apiProducts);
-            console.log("HERE ARE THE PRODS",apiProducts)
         }).catch(err=>console.log("Cannot get products.",err))
     }
 

@@ -24,7 +24,7 @@ exports.getConfig = (req, res) => {
 };
 
 exports.getAllActiveConfigs = (req, res) => {
-    let query = {isActive:true};
+    let query = { isActive:true };
     let sort = { createdAt : -1 };
     Config.model.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });

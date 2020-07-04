@@ -88,7 +88,7 @@ module.exports = (product: string, differential: number, dollarAmt: number, orde
         }).catch(err=>{
             console.log("Error placing order on CB.")
             let failedMessage = JSON.parse(err.response.body).message;
-            let log = new Log.model({ type: "Failed Order",   message: "Failed order. "+failedMessage+".",logLevel: "error",data: JSON.stringify})
+            let log = new Log.model({ type: "Failed Order",   message: "Failed "+product+" order. "+failedMessage+".",logLevel: "error",data: JSON.stringify})
             log.save((err: any)=>{
                 if(err) return console.log("Error writing failed order to log.");
                 return;

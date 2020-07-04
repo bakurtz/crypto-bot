@@ -10,24 +10,21 @@ exports.refreshAvailableProducts = (req, res) => {
         res.status(200).send({data: configs});  
     })
     require('../../coinbase/scripts/getProducts.ts')().then(products=>{
+        let counter = 0;
         products.forEach(p=>{
-            for(let i=0;i<configs.length;i++){
-                //if there is a match already
-                if(configs[i].id==p.id){
-                    return;
-                }
-                //No match, and on last item, so we can assume this is new and needs an insert
-                if(i==configs.length-1){
+            if(p.quote_currency === "USD" ){
+                if(configs.length==0){
                     config = new Config.model({
                         id: p.id,
                         product: new Product.model(p),
                         botEnabled: false,
-                        buySize: 0, //big number
-                        buyType: "Limit",
+                        buySize: 10, //big number
+                        buyType: "limit",
                         limitOrderDiff: 1, //big number
-                        cronValue: "0 0 1 1 1",
+                        cronValue: "0 0 1 1 *",
                         isActive: false, //User has set this active
                         isAvailable: true,
+                        isDefault: counter==0,
                         product: new Product.model(p)
                     })
                     //let product = new Product.model(p);
@@ -35,8 +32,34 @@ exports.refreshAvailableProducts = (req, res) => {
                         //
                     }).catch(err => console.log(err))
                 }
+                for(let i=0;i<configs.length;i++){
+                    //if there is a match already
+                    if(configs[i].id==p.id){
+                        return;
+                    }
+                    //No match, and on last item, so we can assume this is new and needs an insert
+                    if(i==configs.length-1){
+                        config = new Config.model({
+                            id: p.id,
+                            product: new Product.model(p),
+                            botEnabled: false,
+                            buySize: 10, //big number
+                            buyType: "limit",
+                            limitOrderDiff: 1, //big number
+                            cronValue: "0 0 1 1 *",
+                            isActive: false, //User has set this active
+                            isAvailable: true,
+                            isDefault: false,
+                            product: new Product.model(p)
+                        })
+                        //let product = new Product.model(p);
+                        config.save().then(res=>{
+                            //
+                        }).catch(err => console.log(err))
+                    }
+                }
+                counter++;
             }
-            
         })      
     })
 };

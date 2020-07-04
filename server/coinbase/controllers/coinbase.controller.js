@@ -41,7 +41,8 @@ exports.getFills = (req, res) => {
 };
 
 exports.getMarketPrice = (req, res) => {
-    require('../scripts/getMarketPrice.ts')().then(data=>{
+    require('../scripts/getMarketPrice.ts')(req.query.productId).then(data=>{
+
         console.log("PRICE: ",data)
         return res.json({ success: true, data: data })
     })
@@ -52,8 +53,23 @@ exports.getMarketPrice = (req, res) => {
 }
 
 exports.getAccountBalances = (req, res) => {
-    require('../scripts/getAccountInfo.ts')().then(data=>{
-        return res.json({ success: true, data: data })
+    require('../scripts/getAccountInfo.ts')().then(response=>{
+        let balances = [];
+        let item = {};
+        Object.entries(response.data).forEach(v=>{
+            item.id = v[0]
+            //console.log(v)
+            try{
+                item.balance = v[1].balance.toString();
+                item.available = v[1].available.toString();
+                balances.push(item);
+                item = {};
+            }
+            catch(err){
+                console.log(err)
+            }
+        })
+        return res.json({ success: true, data: balances })
     })
     .catch(err=>{
         console.log(err)

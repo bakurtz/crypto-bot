@@ -15,7 +15,8 @@ const ConfigSchema = new Schema(
     limitOrderDiff: Number, //big number
     cronValue: String,
     isActive: Boolean, //User has set this active
-    isAvailable: Boolean //User has this product available in API
+    isAvailable: Boolean, //User has this product available in API
+    isDefault: Boolean
   }
 );
 
