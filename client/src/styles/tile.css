@@ -86,17 +86,16 @@
 
   .col1 {
     flex: 1;
-    max-width: 650px;
-    min-width: 300px;
     vertical-align: middle;
+    font-size: 13px;
     margin: auto 0;
-    font-size: 14px;
+    text-align: center;
   }
   
   .col2 {
     flex: 1.5;
     vertical-align: middle;
-    font-size: 16px;
+    font-size: 13px;
     margin: auto 0;
     text-align: center;
   }
@@ -104,9 +103,9 @@
   .col3 {
     flex: 1;
     text-align: center;
+    font-size: 14px;
     vertical-align: middle;
-
-    }
+  }
 
   .col4 {
     flex: 1;

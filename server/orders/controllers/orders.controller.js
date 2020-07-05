@@ -7,7 +7,7 @@ exports.listOpenOrders = (req, res) => {
     let query = {};
     let sort = { createdAt : -1 };
     if(req.query.byLastSync==="true") sort = { lastSyncDate: 1 }
-    query = {status: {$ne: "done"}, isArchived: {$ne: true}};
+    query = {status: {$nin: ["done","canceled","archived"]}, isArchived: {$ne: true}};
     Order.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data: data })
@@ -38,6 +38,10 @@ exports.getById = (req, res) => {
 
 exports.addOrder = (req, res) => {
     let o = req.body.order;
+    console.log(o.extra)
+    if(o.extra && o.extra.done_reason=="canceled"){
+        o.status = "canceled";
+    }
     let myOrder = new Order({
         _id: o.id,
         id: o.id,
@@ -70,6 +74,10 @@ exports.addOrder = (req, res) => {
 exports.updateById = (req, res) => {
     let o = req.body.order;
     let options = {new: true, upsert: true, useFindAndModify: false};
+    console.log(o.extra)
+    if(o.extra && o.extra.done_reason=="canceled"){
+        o.status = "canceled";
+    }
     Order.findOneAndUpdate({id:o.id},{
       //update
         _id: o.id,

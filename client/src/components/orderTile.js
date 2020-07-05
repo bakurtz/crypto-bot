@@ -7,12 +7,18 @@ import Auxx from '../hoc/auxx';
 const orderTile = (props) => {
     let tile = (<div className="content-row"></div>);
     let color = "dark";
+    let productId = "";
     if(props.order.status==="open") color="green"
     let d = new Date(props.order.createdAt);
+    if(props.order.productId) productId = props.order.productId.substring(0,props.order.productId.indexOf("-"))
+    let product = props.order.productId
     let newDate= (d.getMonth() + 1) + '/' + d.getDate() + '/' +  d.getFullYear();
     tile = (   
         <div onClick={props.click} className="master centerFlex">   
             <div className={color+" fontColor row "} onClick={props.click}>
+                <div className="col1">
+                    {productId}
+                </div>
                 <div className="col2">
                     {props.order.size}
                 </div>

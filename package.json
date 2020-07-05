@@ -17,7 +17,7 @@
   },
   "name": "cb-sample",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "devDependencies": {
     "install": "^0.13.0",
     "ts-node": "^8.5.4",
