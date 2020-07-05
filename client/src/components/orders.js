@@ -12,7 +12,20 @@ import '../styles/admin.css';
 const Orders = (props) =>{
     const [selectedOrder, setSelectedOrder] = useState({});
     const [showOrderModal, setShowOrderModal] = useState(false);
+    const [productId, setProductId] = useState("");
 
+    useEffect(() =>{
+      if(localStorage.getItem("jwt-access-token")){
+        props.getOrders();
+      }
+    },[])
+
+    useEffect(() =>{
+      if(selectedOrder.productId){
+        setProductId(selectedOrder.productId.substring(0,selectedOrder.productId.indexOf("-")));
+      }
+    },[selectedOrder])
+    
     const closeOrderModal = () =>{
         setShowOrderModal(false)
     }
@@ -22,11 +35,7 @@ const Orders = (props) =>{
         setSelectedOrder(order);
     }
 
-    useEffect(() =>{
-      if(localStorage.getItem("jwt-access-token")){
-        props.getOrders();
-      }
-    },[])
+    
 
     let spinner = (<div className="loader">Loading...</div>)
 
@@ -48,10 +57,11 @@ const Orders = (props) =>{
           }}
         >
           <br /><br />
+          <strong>Product:</strong>{productId}<br />
           <strong>USD spent:</strong>&nbsp; ${Number(selectedOrder.totalUsdSpent)}<br />
-          <strong>BTC size:</strong>&nbsp; {Number(selectedOrder.size)}<br />
-          <strong>BTC Order Price:</strong>&nbsp; <span>${selectedOrder.price}/BTC</span><br />
-          <strong>BTC Market Price:</strong>&nbsp; <span>${selectedOrder.marketPrice}/BTC</span><br />
+          <strong>{productId} size:</strong>&nbsp; {Number(selectedOrder.size)}<br />
+          <strong>{productId} Order Price:</strong>&nbsp; <span>${selectedOrder.price}/BTC</span><br />
+          <strong>{productId} Market Price:</strong>&nbsp; <span>${selectedOrder.marketPrice}/BTC</span><br />
           <hr />
           <strong>Order ID:</strong> <span>{selectedOrder.id}</span><br />
           <strong>Status:</strong> <span>{selectedOrder.status}</span><br />

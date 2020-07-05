@@ -10,7 +10,6 @@ import { api } from '../../../common/services/apiAuth';
 require('dotenv').config();
 
 const logger = CBPTT.utils.ConsoleLoggerFactory();
-const product = "BTC-USD";
 
 console.log(process.env.COINBASE_PRO_API_URL)
 console.log(process.env.COINBASE_PRO_KEY)
@@ -29,7 +28,7 @@ const coinbaseProConfig: CoinbaseProConfig = {
 const coinbasePro = new CoinbaseProExchangeAPI(coinbaseProConfig);
 let authClient = new AuthenticatedClient(coinbaseProConfig.auth.key, coinbaseProConfig.auth.secret, coinbaseProConfig.auth.passphrase, coinbaseProConfig.apiUrl);
 
-module.exports = (id: string, token: string) => new Promise((resolve, reject)=>{
+module.exports = (id: string, token: string, productId: string) => new Promise((resolve, reject)=>{
     coinbasePro.loadOrder(id).then((order: LiveOrder) => { // CALL!
         let o = convertOrderType(order);
         //Grab Fills for this order
@@ -38,7 +37,7 @@ module.exports = (id: string, token: string) => new Promise((resolve, reject)=>{
             resolve(resp);
         }).catch(err=>reject(err));
         let fillFilter: FillFilter = {
-            product_id: product,
+            product_id: productId,
             order_id: id
         }
         authClient.getFills(fillFilter).then( // CALL!
@@ -78,7 +77,7 @@ module.exports = (id: string, token: string) => new Promise((resolve, reject)=>{
             let errorMessage = JSON.parse(err.response.body).message;
             if(errorMessage.includes("rate limit")) rateLimitError = true;
             if(!rateLimitError && errorMessage==="NotFound" ){
-                api(token).post(`/archive/${id}`).then((resp)=>{
+                api(token).post(`/order/archive/${id}`).then((resp)=>{
                     console.log("Suspect this order didn't exist. Now it's archived: "+id);
                     resolve(resp);
                 })
@@ -95,6 +94,10 @@ module.exports = (id: string, token: string) => new Promise((resolve, reject)=>{
 
 
 function convertOrderType(o: LiveOrder){
+    console.log(o.extra)
+    if(o.extra && o.extra.done_reason=="canceled"){
+        o.status = "canceled";
+    }
     let dbOrder: Order = {
         _id: o.id,
         id: o.id,

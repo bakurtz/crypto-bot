@@ -14,7 +14,8 @@ const orderList = (props) => {
       <div className="centerFlex">
         <div className="master centerFlex">
         <div className={"hrow"}>
-            <div className="hcol2"><b>BTC Size</b></div>
+          <div className="hcol3">Coin</div>
+            <div className="hcol2"><b>Buy Size</b></div>
             <div className="hcol3"><b>Date</b></div>
             <div className="hcol3">Status</div>
         </div>

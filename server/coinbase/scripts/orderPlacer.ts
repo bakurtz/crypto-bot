@@ -47,6 +47,10 @@ module.exports = (product: string, differential: number, dollarAmt: number, orde
         coinbasePro.placeOrder(buildOrder()).then((o: LiveOrder) => {
             return coinbasePro.loadOrder(o.id);
         }).then((o: any) => {
+            console.log(o.extra)
+            if(o.extra && o.extra.done_reason=="canceled"){
+                o.status = "canceled";
+            }
             let myOrder = new Order({
                 _id: o.id,
                 id: o.id,

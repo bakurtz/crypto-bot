@@ -12,7 +12,7 @@ exports.refreshAvailableProducts = (req, res) => {
     require('../../coinbase/scripts/getProducts.ts')().then(products=>{
         let counter = 0;
         products.forEach(p=>{
-            if(p.quote_currency === "USD" ){
+            if(p.quote_currency === "USD"){
                 if(configs.length==0){
                     config = new Config.model({
                         id: p.id,

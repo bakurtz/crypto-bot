@@ -7,9 +7,6 @@ import * as CBPTT from 'coinbase-pro-trading-toolkit';
 import { api } from '../../../common/services/apiAuth';
 require('dotenv').config();
 
-const product = "BTC-USD";
-
-
 const logger = CBPTT.utils.ConsoleLoggerFactory();
 const coinbaseProConfig: CoinbaseProConfig = {
     logger: logger,
@@ -22,9 +19,9 @@ const coinbaseProConfig: CoinbaseProConfig = {
 };
 let authClient = new AuthenticatedClient(coinbaseProConfig.auth.key, coinbaseProConfig.auth.secret, coinbaseProConfig.auth.passphrase, coinbaseProConfig.apiUrl);
 
-module.exports = (dbOrder: Order, token: string) => new Promise((resolve, reject)=>{
+module.exports = (dbOrder: Order, token: string, productId: string) => new Promise((resolve, reject)=>{
     let fillFilter: FillFilter = {
-        product_id: product,
+        product_id: productId,
         order_id: dbOrder.id
     }
     let typedFill = {type: "fill", fills: {}};

@@ -177,12 +177,12 @@ const Config = (props) =>{
           color: "white",
           background: "#212529",
           borderRadius: state.isFocused ? "3px 3px 0 0" : 3,
-          borderColor: state.isFocused ? "blue" : "gray",
+          borderColor: state.isFocused ? "white" : "gray",
           // Removes weird border around container
           boxShadow: state.isFocused ? null : null,
           "&:hover": {
             // Overwrittes the different states of border
-            borderColor: state.isFocused ? "blue" : "gray"
+            borderColor: state.isFocused ? "white" : "gray"
           }
         }),
         option: (base, state) => ({
@@ -222,7 +222,7 @@ const Config = (props) =>{
 
     let configLayout = (
         <div className="centerFlex" >
-            <div className="fontColor center" style={divStyle}>
+            <div className="fontColor center topRoom" style={divStyle}>
             <Select 
                 options={productOptions} 
                 onChange={props.handleNewProductSelect} 
@@ -265,8 +265,8 @@ const Config = (props) =>{
                     
                     <div className="center" style={fixedWidth}> 
                         <br />
-                        <span>Crypto Bot is <b>{values.botEnabled ? "ENABLED" : "DISABLED"}</b></span><br />
-                        <Field 
+                            <span><b>{values.botEnabled ? "ENABLED" : "DISABLED"}</b></span><br />
+                        <Field className="topRoomLess"
                             onChange={(e)=>{
                                 setFieldValue("botEnabled", !values.botEnabled);
                             }}

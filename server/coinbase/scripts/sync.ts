@@ -4,7 +4,6 @@ import { api } from '../../common/services/apiAuth';
 require('dotenv').config();
 
 module.exports = (token: string) => {
-    console.log(token);
     return new Promise((resolve,reject)=>{
         let allCBPromises: any[] = [];
         let openDbOrders: Order[];
@@ -17,8 +16,8 @@ module.exports = (token: string) => {
             console.log()
             if(openDbOrders.length>0){
                 openDbOrders.forEach(dbOrder => {
-                    allCBPromises.push(require('./promiseTypes/fillsPromise.ts')(dbOrder, token));
-                    allCBPromises.push(require('./promiseTypes/orderPromise.ts')(dbOrder.id, token));
+                    allCBPromises.push(require('./promiseTypes/fillsPromise.ts')(dbOrder, token, dbOrder.productId));
+                    allCBPromises.push(require('./promiseTypes/orderPromise.ts')(dbOrder.id, token, dbOrder.productId));
                 })
             }
             else{
