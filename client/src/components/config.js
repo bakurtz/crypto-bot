@@ -228,6 +228,7 @@ const Config = (props) =>{
                 onChange={props.handleNewProductSelect} 
                 styles={customStyles}
                 width="150px"
+                isSearchable={ false }
                 value={{label : props.selectedProduct ? props.selectedProduct.id : defaultOption.id }}
                 className="selectBox"
                 placeholder="Select an option" />
