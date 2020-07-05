@@ -5,6 +5,7 @@ import '../styles/admin.css';
 import LogOutput from './logOutput';
 import { api } from "../apis/apiCalls";
 import Axios from 'axios';
+import Modal from 'react-responsive-modal';
 
 const Admin = (props) =>{
 
@@ -12,6 +13,9 @@ const Admin = (props) =>{
     const [text, setText] = useState("");
     const [logs, setLogs] = useState([]);
     const [products, setProducts] = useState([]);
+    const [showCronModal, setShowCronModal] = useState(false);
+    const [activeCrons, setActiveCrons] = useState([]);
+
     const divStyle = {
         fontSize: "14px",
         color: "white",
@@ -21,6 +25,12 @@ const Admin = (props) =>{
     useEffect(() =>{
         getLogs();
         getProducts();
+        api().get('/profile/getCrons').then((resp) => {   
+            console.log("~~~~~~~~~~~~~~~~~")
+            console.log(resp.data.data)
+            setActiveCrons(resp.data.data);
+            console.log("~~~~~~~~~~~~~~~~~")
+        }).catch(err=>console.log("Cannot get logs.",err))
     },[])
 
     useEffect(()=>{
@@ -96,10 +106,52 @@ const Admin = (props) =>{
             let fills = resp.data.data;
             setText("FILLS:  \n"+ fills.length + " fill(s) found \n "+JSON.stringify(fills, null, 4))
         }).catch(err=>console.log("Failed attempt to lookup fill.",err))
-    }    
+    }
+
+    const closeCronModal = () => {
+        console.log("Modal closed")
+        setShowCronModal(false);
+    }
+
+    const cronLink = () => {
+        if(activeCrons.length>0){
+            return <a href="#" onClick={()=>setShowCronModal(true)}>Show {activeCrons.length} active crons</a>
+        }
+    }
+
+    const cronList = () => {
+        let cronDiv = activeCrons.map((c,idx)=>{
+            console.log(c.id,c.schedule)
+            return (
+                <div key={c.id}>
+                    {c.id}:  &nbsp;&nbsp;{c.schedule}
+                </div>
+            )
+        })
+        return (
+            <div>
+                {cronDiv}
+            </div>
+        )
+    }
 
     let admin = (
         <div>      
+            <Modal
+                open={showCronModal}
+                onClose={closeCronModal}
+                classNames={{
+                    overlay: "customOverlay",
+                    modal: "customModal"
+                }}
+            >   
+                <strong>List of active crons:</strong>
+                <br />
+                <br />
+                {cronList()}
+                <br /><br />
+            </Modal>
+            {cronLink()}
             <div className="adminSearch centerFlex"><br />
                 <div className="adminSearch centerFlex" >
                 <span >Lookup Order: </span>

@@ -30,6 +30,18 @@ const kill = exports.kill = () => {
     }
 }
 
+const getAll = exports.getAll = () => {
+    let tasklessCrons = [];
+    let cronItem = {};
+    cronArray.forEach(c=>{
+        cronItem.id = c.id;
+        cronItem.schedule = c.schedule;
+        tasklessCrons.push(cronItem);
+        cronItem = {};
+    })
+    return tasklessCrons;
+}
+
 const set = exports.set = (config, token) => {
     if(config.botEnabled){
         if(cron.validate(config.cronValue)){
@@ -74,3 +86,4 @@ const set = exports.set = (config, token) => {
         console.log("~~~")
     }
 }
+

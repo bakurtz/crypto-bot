@@ -27,4 +27,9 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         ProfileController.setActive
     ]);
+
+    app.get('/profile/getCrons', [
+        ValidationMiddleware.validJWTNeeded,
+        ProfileController.getCrons
+    ]);
 };

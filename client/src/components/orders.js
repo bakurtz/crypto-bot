@@ -40,6 +40,9 @@ const Orders = (props) =>{
     let spinner = (<div className="loader">Loading...</div>)
 
     let orders = ( <>
+        
+        <strong><span className="fontColor" style={{fontSize:"x-large"}}>Order History</span></strong>
+        <br />
         <br />
         <Button className="btn-sm" onClick={props.syncOrders}>
         <FontAwesomeIcon className={"nowrap fas "} icon={faSync} /> 
@@ -60,8 +63,8 @@ const Orders = (props) =>{
           <strong>Product:</strong>{productId}<br />
           <strong>USD spent:</strong>&nbsp; ${Number(selectedOrder.totalUsdSpent)}<br />
           <strong>{productId} size:</strong>&nbsp; {Number(selectedOrder.size)}<br />
-          <strong>{productId} Order Price:</strong>&nbsp; <span>${selectedOrder.price}/BTC</span><br />
-          <strong>{productId} Market Price:</strong>&nbsp; <span>${selectedOrder.marketPrice}/BTC</span><br />
+          <strong>{productId} Order Price:</strong>&nbsp; <span>${selectedOrder.price}/{productId}</span><br />
+          <strong>{productId} Market Price:</strong>&nbsp; <span>${selectedOrder.marketPrice}/{productId}</span><br />
           <hr />
           <strong>Order ID:</strong> <span>{selectedOrder.id}</span><br />
           <strong>Status:</strong> <span>{selectedOrder.status}</span><br />

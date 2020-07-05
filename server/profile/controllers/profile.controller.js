@@ -25,7 +25,7 @@ exports.getConfig = (req, res) => {
 
 exports.getAllActiveConfigs = (req, res) => {
     let query = { isActive:true };
-    let sort = { createdAt : -1 };
+    let sort = { id : -1 };
     Config.model.find(query).sort(sort).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data })
@@ -73,4 +73,9 @@ exports.setActive = (req, res) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data })
     })
+};
+
+exports.getCrons = (req, res) => {
+    let crons = cron.getAll();
+    return res.json({ success: true, data: crons })
 };
