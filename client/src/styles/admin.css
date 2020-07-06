@@ -1,3 +1,4 @@
+
 .adminSearch{
     font-size: 16px;
     color: white;
@@ -20,7 +21,6 @@ input.admin{
 .checkbox-grid li {
     display: block;
     float: left;
-    width: 25%;
     color: white;
 }
 
@@ -29,6 +29,7 @@ input.admin{
     text-align: left;
     font-size: 12px;
     margin-right: 25px;
+    padding-inline-start: 4px;
 }
 
 .width90{

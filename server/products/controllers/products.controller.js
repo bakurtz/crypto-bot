@@ -1,6 +1,6 @@
 const Product = require('../../profile/schemas/Product');
 const Config = require('../../profile/schemas/Config');
-const crypto = require('crypto');
+require('dotenv').config();
 
 exports.refreshAvailableProducts = (req, res) => {
     let configs;
@@ -12,8 +12,7 @@ exports.refreshAvailableProducts = (req, res) => {
     require('../../coinbase/scripts/getProducts.ts')().then(products=>{
         let counter = 0;
         products.forEach(p=>{
-            //if(p.quote_currency === "USD"){
-            if(p.quote_currency){
+            if(p.quote_currency === process.env.BASE_CURRENCEY){
                 if(configs.length==0){
                     config = new Config.model({
                         id: p.id,
