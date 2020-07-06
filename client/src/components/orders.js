@@ -18,7 +18,7 @@ const Orders = (props) =>{
       if(localStorage.getItem("jwt-access-token")){
         props.getOrders();
       }
-    },[props])
+    },[])
 
     useEffect(() =>{
       if(selectedOrder.productId){
