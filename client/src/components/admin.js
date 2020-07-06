@@ -4,7 +4,6 @@ import Button from 'react-bootstrap/Button';
 import '../styles/admin.css';
 import LogOutput from './logOutput';
 import { api } from "../apis/apiCalls";
-import Axios from 'axios';
 import Modal from 'react-responsive-modal';
 
 const Admin = (props) =>{
@@ -25,11 +24,8 @@ const Admin = (props) =>{
     useEffect(() =>{
         getLogs();
         getProducts();
-        api().get('/profile/getCrons').then((resp) => {   
-            console.log("~~~~~~~~~~~~~~~~~")
-            console.log(resp.data.data)
+        api().get('/profile/getCrons').then((resp) => {
             setActiveCrons(resp.data.data);
-            console.log("~~~~~~~~~~~~~~~~~")
         }).catch(err=>console.log("Cannot get logs.",err))
     },[])
 
@@ -37,13 +33,9 @@ const Admin = (props) =>{
 
     },[products])
     
-    
-    let productCheckBoxes = (<div style={{color:"white"}}>YOOOO!!</div>)
     let checkboxes;
 
     const productBoxChecked =(i) => {
-        console.log(products[i].id,!products[i].isActive);
-        console.log()
         let newProds = [...products];
         newProds[i].isActive = !products[i].isActive;
         setProducts(newProds);
@@ -115,13 +107,22 @@ const Admin = (props) =>{
 
     const cronLink = () => {
         if(activeCrons.length>0){
-            return <a href="#" onClick={()=>setShowCronModal(true)}>Show {activeCrons.length} active crons</a>
+            return (
+                <div className="topRoom">
+                <a href="#" style={{color:"black"}} onClick={()=>setShowCronModal(true)}>
+                    <div style={{ width: "175px", fontSize:"14px",borderRadius: "10px",
+                        textAlign:"center", margin:"auto", 
+                        backgroundColor:"#79fcb4"}}>
+                        Show {activeCrons.length} active timers
+                    </div>
+                </a>
+                </div>
+            )
         }
     }
 
     const cronList = () => {
         let cronDiv = activeCrons.map((c,idx)=>{
-            console.log(c.id,c.schedule)
             return (
                 <div key={c.id}>
                     {c.id}:  &nbsp;&nbsp;{c.schedule}
@@ -145,13 +146,12 @@ const Admin = (props) =>{
                     modal: "customModal"
                 }}
             >   
-                <strong>List of active crons:</strong>
+                <strong>List of active timers:</strong>
                 <br />
                 <br />
                 {cronList()}
                 <br /><br />
             </Modal>
-            {cronLink()}
             <div className="adminSearch centerFlex"><br />
                 <div className="adminSearch centerFlex" >
                 <span >Lookup Order: </span>
@@ -182,6 +182,7 @@ const Admin = (props) =>{
     )
     return (
         <>
+            {cronLink()}
             {getProductCheckBoxes()}
             {admin}
         </>

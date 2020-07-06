@@ -35,7 +35,7 @@ function App() {
       if(selectedProduct) getMarketPrice(selectedProduct);
       getAccountBalances();
     }
-  },[])
+  },[selectedProduct])
 
   useEffect(() =>{
     if(selectedProduct) getMarketPrice(selectedProduct);

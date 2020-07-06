@@ -29,7 +29,7 @@ const logOutput = (props) => {
     }
 
     return (
-        <table className="centerFlex " style={divStyle}>
+        <table className="centerFlex width90" style={divStyle}>
             <tbody>
                 <tr>
                     <th>Timestamp</th>

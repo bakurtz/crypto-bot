@@ -11,7 +11,6 @@ const orderTile = (props) => {
     if(props.order.status==="open") color="green"
     let d = new Date(props.order.createdAt);
     if(props.order.productId) productId = props.order.productId.substring(0,props.order.productId.indexOf("-"))
-    let product = props.order.productId
     let newDate= (d.getMonth() + 1) + '/' + d.getDate() + '/' +  d.getFullYear();
     tile = (   
         <div onClick={props.click} className="master centerFlex">   

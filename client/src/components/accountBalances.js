@@ -54,10 +54,10 @@ const AccountBalances = (props) =>{
       <div style={acctBox} className="acctBox">
         <div><strong>Account Balances:</strong></div>
         <div style={{textAlign:"left"}}>
-          <div >{quoteCurrency}:&emsp; {quoteBalance ? Number(quoteBalance).toFixed(4) : " ..." }</div>
-          <div >{baseCurrency}:&emsp; {baseBalance ? Number(baseBalance).toFixed(4) : " ..." }</div>
+          <div ><span style={{ display:"inline-block", width:"50px" }}>{quoteCurrency}:</span>&emsp;{quoteBalance ? (quoteCurrency === "USD" ? "$" : "") + Number(quoteBalance).toFixed(4) : " ..." }</div>
+          <div ><span style={{ display:"inline-block", width:"50px" }}>{baseCurrency}:</span>&emsp;{baseBalance ? Number(baseBalance).toFixed(4) : " ..." }</div>
           <hr style={{color:"white", padding: "0px", borderTop: "1px solid rgb(150, 150, 150)", margin: "0px"}} />
-          <div className="centerFlex" style={{fontSize:"12px"}}> {baseCurrency+" Market Price:"} {props.marketPrice ? props.marketPrice+" "+quoteCurrency : " ..."}</div>
+          <div className="centerFlex" style={{fontSize:"12px"}}> {baseCurrency+" Market Price:"} {props.marketPrice ? (quoteCurrency === "USD" ? "$" : "")+props.marketPrice+" "+quoteCurrency : " ..."}</div>
         </div>
       </div>
     </div>
