@@ -50,9 +50,6 @@ const set = exports.set = (config, token) => {
                 if(cronArray[i].id == config.id) {
                     cronArray[i].task.destroy();
                     cronArray.splice(i,1);
-                    log.save( err => {
-                        if(err) console.log(err)
-                    })
                 }
             }
             newTask = cron.schedule(config.cronValue, () =>  {
