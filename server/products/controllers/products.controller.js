@@ -11,8 +11,10 @@ exports.refreshAvailableProducts = (req, res) => {
     })
     require('../../coinbase/scripts/getProducts.ts')().then(products=>{
         let counter = 0;
-        products.forEach(p=>{
-            if(p.quote_currency === process.env.BASE_CURRENCEY){
+        let currencyArray = process.env.BASE_CURRENCY.split(",");
+        products.forEach(p=>{            
+            console.log(p.id,currencyArray.includes(p.quote_currency))
+            if(currencyArray.includes(p.quote_currency)){
                 if(configs.length==0){
                     config = new Config.model({
                         id: p.id,

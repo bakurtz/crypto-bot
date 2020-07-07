@@ -62,7 +62,7 @@ const Admin = (props) =>{
         }
         return (
             <div className="centerFlex topRoom" style={{color:"white"}}>
-                Product Selections:
+                <strong>Product Selections:</strong>
                 <ul className="checkBox checkbox-grid">
                     {checkboxes}
                 </ul>
