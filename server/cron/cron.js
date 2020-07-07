@@ -45,6 +45,16 @@ const getAll = exports.getAll = () => {
 const set = exports.set = (config, token) => {
     if(config.botEnabled){
         if(cron.validate(config.cronValue)){
+            //Kill existing cron if one exists
+            for(let i = cronArray.length-1; i>=0; i--){
+                if(cronArray[i].id == config.id) {
+                    cronArray[i].task.destroy();
+                    cronArray.splice(i,1);
+                    log.save( err => {
+                        if(err) console.log(err)
+                    })
+                }
+            }
             newTask = cron.schedule(config.cronValue, () =>  {
                 placeOrder(config.id, config.limitOrderDiff, config.buySize, config.buyType, token);
             });
