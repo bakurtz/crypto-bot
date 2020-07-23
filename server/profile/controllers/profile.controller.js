@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const Config = require('../schemas/Config');
 const Log = require('../../common/schemas/Log');
 const cron = require('../../cron/cron');
+const fs = require('fs');
+const path = require('path');
 const mongoose = require("../../common/services/mongoose.service").mongoose;
 
 exports.listLogs = (req, res) => {
@@ -72,6 +74,42 @@ exports.setActive = (req, res) => {
     Config.model.findOneAndUpdate(query, set).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
         return res.json({ success: true, data })
+    })
+};
+
+exports.addIcon = (req, res) => {
+    let btc;
+    let eth;
+    let tickers = [];
+    let ticker = "";
+    let query = "";
+    let set = "";
+    let count = 0;
+    let numConfigs = 0;
+    let fileStr = path.dirname(require.main.filename)+"\\node_modules\\cryptocurrency-icons\\32\\color\\";
+    console.log(fileStr)
+    console.log("YOO");
+
+    Config.model.find({}).then((data,err) => {
+        if (err) return res.json({ success: false, error: err });
+        numConfigs = data.length;
+        data.forEach(c => {
+            ticker = c.product.base_currency.toLowerCase();
+            tickers.push(c.product.base_currency.toLowerCase());
+            fs.readFile(fileStr+ticker+".png", (err, img)=>{
+                console.log("~~~~~~~~~~~~~~~~~~~~~~")
+                console.log(img)
+                if(err) return res.json({ success: false, error:err });
+                query = {id: c.id};
+                set = {$set: { icon:  {data: img, contentType: "image/png"}}};
+                Config.model.findOneAndUpdate(query, set).then((data,err) => {
+                    console.log(count++, numConfigs-1);
+                    if (err) return res.json({ success: false, error: err });
+                    if(count===numConfigs-1) return res.json({ success: true });
+                })
+            });
+        });
+        
     })
 };
 

@@ -16,7 +16,8 @@ const ConfigSchema = new Schema(
     cronValue: String,
     isActive: Boolean, //User has set this active
     isAvailable: Boolean, //User has this product available in API
-    isDefault: Boolean
+    isDefault: Boolean,
+    icon: {data: Buffer, contentType: String}
   }
 );
 

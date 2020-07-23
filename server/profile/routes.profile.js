@@ -32,4 +32,8 @@ exports.routesConfig = function (app) {
         ValidationMiddleware.validJWTNeeded,
         ProfileController.getCrons
     ]);
+
+    app.post('/profile/addIcon', [
+        ProfileController.addIcon
+    ]);
 };

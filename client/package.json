@@ -13,6 +13,7 @@
     "bootstrap": "^4.4.1",
     "cron-parser": "^2.13.0",
     "cron-validator": "^1.1.1",
+    "cryptocurrency-icons": "^0.16.1",
     "formik": "^2.1.4",
     "moment": "2.18.1",
     "node-cron": "^2.0.3",

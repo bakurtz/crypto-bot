@@ -12,9 +12,8 @@ import Form from 'react-bootstrap/Form';
 import {Formik, Field } from 'formik';
 import { api } from "../apis/apiCalls";
 import ReactTooltip from "react-tooltip";
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 let cronParser = require('cron-parser');
-
 
 const Config = (props) =>{
     const [editMode, setEditMode] = useState(false);
@@ -155,18 +154,30 @@ const Config = (props) =>{
         </span>
     )
     
+    const toBase64 = (arr) => {
+        let newArr = new Uint8Array(arr);
+        return btoa(
+            newArr.reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+    }
     const getProductOptions = () => {
         api().get('/profile/getAllActiveConfigs').then((resp) => {
             if(!!resp.data.data){ // In case no data exists in DB
                 let allConfigs = resp.data.data;
                 let options = [];
+                let convertedImg;
                 allConfigs.forEach(c=>{
-                    options.push({value:c, label:c.id});
+                    if(c.icon){
+                        convertedImg = "data:image/png;base64,"+toBase64(c.icon.data.data);
+                    }
+                    options.push({value:c, label:c.id, icon:convertedImg});
                     if(c.isDefault && c.isDefault===true){
                         setDefaultOption(c);
                     } 
-                    setProductOptions(options);
+                    
                 })
+                console.log(options)
+                setProductOptions(options);
             }
         }).catch(err=>console.log("Cannot get config.",err))
     }
@@ -220,16 +231,54 @@ const Config = (props) =>{
           })
       };
 
+    const { Option } = components;
+    const customSingleValue = selectprops => {
+        console.log(selectprops)
+        return (
+            <div className="input-select">
+                <span className="input-select__icon">
+                    <img
+                        src={selectprops.data.icon}
+                        style={{ width: 20, height: 20, marginRight: 10, marginLeft: 10 }}
+                        alt=""
+                    />
+                    { selectprops.data.label }
+                </span>
+            </div>
+        );
+    }
+
+    const customOption = selectprops => (
+        <Option {...selectprops}>
+            <span className="input-select__icon">
+                <img
+                    src={selectprops.data.icon}
+                    style={{ width: 24, height: 24, marginRight: 10, marginLeft: 10}}
+                    alt=""
+                />
+                { selectprops.data.label }
+            </span>
+        </Option>
+    );
+
     let configLayout = (
         <div className="centerFlex" >
             <div className="fontColor center topRoom" style={divStyle}>
             <Select 
                 options={productOptions} 
+                components={{
+                    SingleValue: customSingleValue, 
+                    Option: customOption 
+                }}
                 onChange={props.handleNewProductSelect} 
                 styles={customStyles}
                 width="150px"
                 isSearchable={ false }
-                value={{label : props.selectedProduct ? props.selectedProduct.id : defaultOption.id }}
+                value={{
+                    label: props.selectedProduct ? props.selectedProduct.id : defaultOption.id,
+                    icon: props.selectedProduct ? "data:image/png;base64,"+toBase64(props.selectedProduct.icon.data.data) :
+                        "data:image/png;base64,"+toBase64(defaultOption.icon)
+                }}
                 className="selectBox"
                 placeholder="Select an option" />
             </div>

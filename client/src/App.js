@@ -94,7 +94,6 @@ function App() {
   }
 
   let handleNewProductSelect = (e) => {
-    
     setSelectedProduct(e.value);
   }
 
