@@ -86,7 +86,7 @@ exports.addIcon = (req, res) => {
     let set = "";
     let count = 0;
     let numConfigs = 0;
-    let fileStr = path.dirname(require.main.filename)+"\\node_modules\\cryptocurrency-icons\\32\\color\\";
+    let fileStr = path.dirname(require.main.filename)+"/node_modules/cryptocurrency-icons/32/color/";
     console.log(fileStr)
     console.log("YOO");
 
