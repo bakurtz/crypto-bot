@@ -170,6 +170,9 @@ const Config = (props) =>{
                     if(c.icon){
                         convertedImg = "data:image/png;base64,"+toBase64(c.icon.data.data);
                     }
+                    else{
+                        convertedImg ="";
+                    }
                     options.push({value:c, label:c.id, icon:convertedImg});
                     if(c.isDefault && c.isDefault===true){
                         setDefaultOption(c);

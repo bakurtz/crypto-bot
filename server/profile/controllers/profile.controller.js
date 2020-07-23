@@ -96,18 +96,34 @@ exports.addIcon = (req, res) => {
         data.forEach(c => {
             ticker = c.product.base_currency.toLowerCase();
             tickers.push(c.product.base_currency.toLowerCase());
-            fs.readFile(fileStr+ticker+".png", (err, img)=>{
-                console.log("~~~~~~~~~~~~~~~~~~~~~~")
-                console.log(img)
-                if(err) return res.json({ success: false, error:err });
-                query = {id: c.id};
-                set = {$set: { icon:  {data: img, contentType: "image/png"}}};
-                Config.model.findOneAndUpdate(query, set).then((data,err) => {
-                    console.log(count++, numConfigs-1);
-                    if (err) return res.json({ success: false, error: err });
-                    if(count===numConfigs-1) return res.json({ success: true });
-                })
-            });
+            try{
+                fs.readFile(fileStr+ticker+".png", (err, img)=>{
+                    console.log("~~~~~~~~~~~~~~~~~~~~~~")
+                    console.log(img)
+                    if(err) return res.json({ success: false, error:err });
+                    query = {id: c.id};
+                    set = {$set: { icon:  {data: img, contentType: "image/png"}}};
+                    Config.model.findOneAndUpdate(query, set).then((data,err) => {
+                        console.log(count++, numConfigs-1);
+                        if (err) return res.json({ success: false, error: err });
+                        if(count===numConfigs-1) return res.json({ success: true });
+                    })
+                });
+            }
+            catch(err) {
+                console.log(err)
+                s.readFile(fileStr+"yoyow.png", (err, img)=>{
+                    console.log(img)
+                    if(err) return res.json({ success: false, error:err });
+                    query = {id: c.id};
+                    set = {$set: { icon:  {data: img, contentType: "image/png"}}};
+                    Config.model.findOneAndUpdate(query, set).then((data,err) => {
+                        console.log(count++, numConfigs-1);
+                        if (err) return res.json({ success: false, error: err });
+                        if(count===numConfigs-1) return res.json({ success: true });
+                    })
+                });
+            }
         });
         
     })
