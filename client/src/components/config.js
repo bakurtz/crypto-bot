@@ -279,7 +279,7 @@ const Config = (props) =>{
                 isSearchable={ false }
                 value={{
                     label: props.selectedProduct ? props.selectedProduct.id : defaultOption.id,
-                    icon: props.selectedProduct ? "data:image/png;base64,"+toBase64(props.selectedProduct.icon.data.data) :
+                    icon: props.selectedProduct && props.selectedProduct.icon.data ? "data:image/png;base64,"+toBase64(props.selectedProduct.icon.data.data) :
                         "data:image/png;base64,"+toBase64(defaultOption.icon)
                 }}
                 className="selectBox"

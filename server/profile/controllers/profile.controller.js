@@ -100,7 +100,7 @@ exports.addIcon = (req, res) => {
                 fs.readFile(fileStr+ticker+".png", (err, img)=>{
                     console.log("~~~~~~~~~~~~~~~~~~~~~~")
                     console.log(img)
-                    if(err) return res.json({ success: false, error:err });
+                    if(err) throw "cannot find"+ticker+".png"
                     query = {id: c.id};
                     set = {$set: { icon:  {data: img, contentType: "image/png"}}};
                     Config.model.findOneAndUpdate(query, set).then((data,err) => {
