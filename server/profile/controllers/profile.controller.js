@@ -112,7 +112,7 @@ exports.addIcon = (req, res) => {
             }
             catch(err) {
                 console.log(err)
-                s.readFile(fileStr+"yoyow.png", (err, img)=>{
+                fs.readFile(fileStr+"yoyow.png", (err, img)=>{
                     console.log(img)
                     if(err) return res.json({ success: false, error:err });
                     query = {id: c.id};
