@@ -98,8 +98,6 @@ exports.addIcon = (req, res) => {
             tickers.push(c.product.base_currency.toLowerCase());
             
                 fs.readFile(fileStr+ticker+".png", (err, img)=>{
-                    console.log("~~~~~~~~~~~~~~~~~~~~~~")
-                    console.log(img)
                     try{
                         if(err) throw "cannot find ticker"
                         query = {id: c.id};

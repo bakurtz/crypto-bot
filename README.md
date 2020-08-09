@@ -7,9 +7,9 @@ Crypto-bot is an open sourced app built with the idea of dollar-cost-averaging i
 Please use at your own risk, and never share your API keys.
 
 
-<img src="http://g.recordit.co/nq23eeVnMA.gif"
+<img src="http://g.recordit.co/6AXFei5Ics.gif"
      alt="App overveiw"
-     style="margin-right: 0 auto;" />  
+     style="margin-right: 0 auto; max-width: 80%" />  
   
 
 ## Installation
