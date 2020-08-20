@@ -3,8 +3,10 @@ import axios from 'axios';
 const api = () => {
 
     //Setup axios instance
+    let baseUrl = new URL('/',location.href).href;
+    baseUrl = baseUrl.substr(0,baseUrl.length-1)+process.env.REACT_APP_API_PORT
     let restApi = axios.create({
-        baseURL: process.env.REACT_APP_API_URL,
+        baseURL: baseUrl,
         timeout: 10000
     });
 
