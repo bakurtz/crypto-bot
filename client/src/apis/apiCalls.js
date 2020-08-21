@@ -8,7 +8,7 @@ const api = () => {
     if(port != ""){
         baseUrl = baseUrl.substr(0,baseUrl.indexOf(":"+port));
     }
-    baseUrl = baseUrl + ":" + process.env.REACT_APP_API_PORT;
+    baseUrl = baseUrl + ":" + process.env.REACT_APP_API_PORT + "/api";
     
     console.log(baseUrl);
     let restApi = axios.create({
