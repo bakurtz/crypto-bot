@@ -3,8 +3,14 @@ import axios from 'axios';
 const api = () => {
 
     //Setup axios instance
-    let baseUrl = new URL('/',location.href).href;
-    baseUrl = baseUrl.substr(0,baseUrl.length-1)+process.env.REACT_APP_API_PORT
+    let baseUrl = window.location.href.substr(0,window.location.href.length-1);
+    let port = window.location.port;
+    if(port != ""){
+        baseUrl = baseUrl.substr(0,baseUrl.indexOf(":"+port));
+    }
+    baseUrl = baseUrl + ":" + process.env.REACT_APP_API_PORT;
+    
+    console.log(baseUrl);
     let restApi = axios.create({
         baseURL: baseUrl,
         timeout: 10000

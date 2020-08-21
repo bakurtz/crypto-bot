@@ -21,7 +21,6 @@ const Login = (props) =>{
     api().get('/users/count').then((resp) => {
       //if no users exist, route to /register
       let num = resp.data.data;
-      console.log("NUMBER OF USERS FOUND: ",resp.data)
       if(num === 0) {
         window.location.href="/register";}
       else{
