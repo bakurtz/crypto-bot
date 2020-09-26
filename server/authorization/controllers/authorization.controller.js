@@ -13,7 +13,6 @@ exports.login = (req, res) => {
         let hash = crypto.createHmac('sha512', salt).update(refreshId).digest("base64");
         req.body.refreshKey = salt;
         delete req.body.exp;
-        //req.body.exp = Math.floor(Date.now() / 1000) + (jwt_life_in_seconds);
         let token = jwt.sign(req.body, jwtSecret, { expiresIn: jwt_life_in_seconds });
         let b = new Buffer(hash);
         let refresh_token = b.toString('base64');

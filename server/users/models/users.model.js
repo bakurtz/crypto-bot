@@ -6,7 +6,11 @@ const userSchema = new Schema({
     lastName: String,
     email: String,
     password: String,
-    permissionLevel: Number
+    permissionLevel: Number,
+    depositsEnabled: Boolean,
+    usdcDepositAmount: Number,
+    usdcToUsdConversionAmount: Number,
+    enableEmailAlerts: Boolean
 });
 
 userSchema.virtual('id').get(function () {
@@ -23,7 +27,6 @@ userSchema.findById = function (cb) {
 };
 
 const User = mongoose.model('Users', userSchema);
-
 
 exports.findByEmail = (email) => {
     return User.find({email: email});

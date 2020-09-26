@@ -9,6 +9,7 @@ const ConfigSchema = new Schema(
       type:product.schema,
       default: {}
     },
+    email: String,
     botEnabled: Boolean,
     buySize: Number, //big number
     buyType: String,

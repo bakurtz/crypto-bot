@@ -6,15 +6,14 @@ import { LiveOrder } from 'coinbase-pro-trading-toolkit/build/src/lib/Orderbook'
 const cbpConfig = require('../common/cbpConfig');
 const Order = require('../../orders/schemas/Order');
 import { BigJS } from 'coinbase-pro-trading-toolkit/build/src/lib/types';
-const Log = require('../../../server/common/schemas/Log');
+const Logger = require('../../../server/common/services/logger');
 
 require('dotenv').config();
 
 
-module.exports = (product: string, differential: number, dollarAmt: number, orderTypeInput: string) => {
+module.exports = (product: string, differential: number, dollarAmt: number, orderTypeInput: string, email: string) => {
     let marketPrice: number;
     let buyDifferential: number = Number(differential/100); //convert differential from % to decimal    
-
 
     const coinbaseProConfig: CoinbaseProConfig = cbpConfig();
 
@@ -75,28 +74,14 @@ module.exports = (product: string, differential: number, dollarAmt: number, orde
             myOrder.save((err: any)=>{
                 if(err) return console.log("Error writing new order data to mongodb.");
                 console.log("Coinbase order placed, and successful write to local db.");
-                let log = new Log.model(
-                    {
-                        type: "New "+product+" order placed",
-                        message: "New  "+product+" order has been placed: "+myOrder.id,
-                        logLevel: "info",
-                        data: JSON.stringify(myOrder)
-                    }
-                )
-                log.save( (err: any) => {
-                    if(err) console.log(err)
-                })
+                Logger("New "+product+" order placed", "New  "+product+" order has been placed: "+myOrder.id, "info", JSON.stringify(myOrder), email);
                 return;
             });
             
         }).catch(err=>{
             console.log("Error placing order on CB.")
             let failedMessage = JSON.parse(err.response.body).message;
-            let log = new Log.model({ type: "Failed Order",   message: "Failed "+product+" order. "+failedMessage+".",logLevel: "error",data: JSON.stringify})
-            log.save((err: any)=>{
-                if(err) return console.log("Error writing failed order to log.");
-                return;
-            })
+            Logger("Failed Order", "Failed "+product+" order. "+failedMessage+".", "error", JSON.stringify, email);
         })
     })
 }

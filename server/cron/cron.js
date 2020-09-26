@@ -2,6 +2,8 @@ const cron = require('node-cron');
 const Log = require('../common/schemas/Log');
 const Config = require('../profile/schemas/Config');
 const placeOrder = require('../coinbase/scripts/orderPlacer.ts');
+const { noUsersExist } = require('../common/middlewares/auth.validation.middleware');
+const Logger = require('../common/services/logger');
 
 
 let cronTask;
@@ -53,9 +55,9 @@ const set = exports.set = (config, token) => {
                 }
             }
             newTask = cron.schedule(config.cronValue, () =>  {
-                placeOrder(config.id, config.limitOrderDiff, config.buySize, config.buyType, token);
+                placeOrder(config.id, config.limitOrderDiff, config.buySize, config.buyType, config.email);
             });
-            cronArray.push({id: config.id, task: newTask, schedule: config.cronValue})
+            cronArray.push({id: config.id, task: newTask, schedule: config.cronValue, email: config.email})
             console.log("New cron set for "+config.id+": "+config.cronValue)
             let log = new Log.model({type: "Crypto-bot enabled", message: "Crypto-bot enabled with cron: "+config.cronValue,logLevel: "info", data: config.cronValue})
             log.save( err => { if(err) console.log(err) })

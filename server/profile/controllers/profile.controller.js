@@ -5,6 +5,7 @@ const cron = require('../../cron/cron');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require("../../common/services/mongoose.service").mongoose;
+const Logger = require('../../common/services/logger');
 
 exports.listLogs = (req, res) => {
     let query = {};
@@ -36,6 +37,7 @@ exports.getAllActiveConfigs = (req, res) => {
 
 exports.saveConfig = (req, res) => {
     let config = req.body.params;
+    config.email = req.jwt.email;
     let err = null;
     let set = {
         $set: { 
@@ -44,14 +46,14 @@ exports.saveConfig = (req, res) => {
             limitOrderDiff: config.limitOrderDiff,
             cronValue: config.cronValue,
             buyType: config.buyType,
+            email: req.jwt.email
         }
     }
     let options = {new: true, upsert: false, useFindAndModify: false};
-
     Config.model.findOneAndUpdate({id:config.id}, set, options, (err, data) => {
         if (err) return res.json({ success: false, error: err });
         cron.kill();
-        cron.set(config);
+        cron.set(config,null,req.jwt.email);
         let log = new Log.model({
             type: "Config change",
             message: "New config saved",
@@ -60,7 +62,7 @@ exports.saveConfig = (req, res) => {
         })
         log.save((err)=>{
             if(err) {
-                console.log(err)
+                console.log(err);
             }
         })
         return res.json({ success: true, data: data });
@@ -87,8 +89,6 @@ exports.addIcon = (req, res) => {
     let count = 0;
     let numConfigs = 0;
     let fileStr = path.dirname(require.main.filename)+"/node_modules/cryptocurrency-icons/32/color/";
-    console.log(fileStr)
-    console.log("YOO");
 
     Config.model.find({}).then((data,err) => {
         if (err) return res.json({ success: false, error: err });
@@ -109,9 +109,8 @@ exports.addIcon = (req, res) => {
                         })
                     }
                     catch(err) {
-                        console.log(err)
+                        console.log(err);
                         fs.readFile(fileStr+"yoyow.png", (err, img)=>{
-                            console.log(img)
                             if(err) return res.json({ success: false, error:err });
                             query = {id: c.id};
                             set = {$set: { icon:  {data: img, contentType: "image/png"}}};

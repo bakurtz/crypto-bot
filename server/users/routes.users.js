@@ -10,7 +10,7 @@ exports.routesConfig = function (app) {
         AuthorizationController.login
     ]);
     app.get('/users', [
-        //ValidationMiddleware.validJWTNeeded,
+        ValidationMiddleware.validJWTNeeded,
         UsersController.list
     ]);
     app.get('/users/count', [
@@ -18,15 +18,15 @@ exports.routesConfig = function (app) {
         UsersController.count
     ]);
     app.get('/users/:userId', [
-        //ValidationMiddleware.validJWTNeeded,
+        ValidationMiddleware.validJWTNeeded,
         UsersController.getById
     ]);
     app.patch('/users/:userId', [
-        //ValidationMiddleware.validJWTNeeded,
+        ValidationMiddleware.validJWTNeeded,
         UsersController.patchById
     ]);
     app.delete('/users/:userId', [
-        //ValidationMiddleware.validJWTNeeded,
+        ValidationMiddleware.validJWTNeeded,
         UsersController.removeById
     ]);
 };

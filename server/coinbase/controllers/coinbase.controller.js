@@ -3,6 +3,7 @@ let placeOrder = require('../scripts/orderPlacer.ts');
 
 exports.placeOrder = (req, res) => {
     let differential;
+    console.log("YODELAYHEEEWHOOO!!!",req.jwt.email);
     if(!req.body.params || !req.body.params.differential){
         differential = process.env.BUY_DIFFERENTIAL;
     }
@@ -12,7 +13,7 @@ exports.placeOrder = (req, res) => {
         let dollarAmt = req.body.params.buySize;
         let orderType = req.body.params.orderType;
     }
-    placeOrder(product, differential, dollarAmt, orderType);
+    placeOrder(product, differential, dollarAmt, orderType, req.jwt.email);
     return res.json({ success: true, data: null });
 };
 

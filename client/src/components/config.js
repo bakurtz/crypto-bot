@@ -66,7 +66,7 @@ const Config = (props) =>{
 
     useEffect(() =>{
         if(defaultOption){
-            getConfig(defaultOption);
+            getConfig(defaultOption.id);
             props.handleNewProductSelect({value: defaultOption});
         }
     },[defaultOption]);
@@ -174,12 +174,12 @@ const Config = (props) =>{
                         convertedImg ="";
                     }
                     options.push({value:c, label:c.id, icon:convertedImg});
-                    if(c.isDefault && c.isDefault===true){
+                    if(c && c.isDefault && c.isDefault===true){
+                        console.log("CID",c.id)
                         setDefaultOption(c);
                     } 
                     
                 })
-                console.log(options)
                 setProductOptions(options);
             }
         }).catch(err=>console.log("Cannot get config.",err))
@@ -236,7 +236,6 @@ const Config = (props) =>{
 
     const { Option } = components;
     const customSingleValue = selectprops => {
-        console.log(selectprops)
         return (
             <div className="input-select">
                 <span className="input-select__icon">
