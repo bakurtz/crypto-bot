@@ -10,7 +10,10 @@ const userSchema = new Schema({
     depositsEnabled: Boolean,
     usdcDepositAmount: Number,
     usdcToUsdConversionAmount: Number,
-    enableEmailAlerts: Boolean
+    enableEmailAlerts: Boolean,
+    cbpKey: String,
+    cbpSecret: String,
+    cbpPassphrase: String
 });
 
 userSchema.virtual('id').get(function () {

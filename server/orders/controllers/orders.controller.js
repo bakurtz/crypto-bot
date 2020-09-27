@@ -119,7 +119,7 @@ exports.logFailed = (req, res) => {
         })
     failedOrder.save((err)=>{
         if(err) return res.json({ success: false, error: err });
-        let log = new Log.model({ type: "Failed Order",   message: failedMessage,logLevel: "error",data: JSON.stringify})
+        let log = new Log.model({ type: "Failed Order", message: failedMessage,logLevel: "error", data: JSON.stringify })
         log.save((err)=>{
             if(err) return res.json({ success: false, error: err });
             return res.json({ success: true, message: "Written successfully." });

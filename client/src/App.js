@@ -6,6 +6,7 @@ import About from './components/about';
 import Register from './components/register';
 import Login from './components/login';
 import Config from './components/config';
+import Profile from './components/profile';
 import PrivateRoute from './components/PrivateRoute';
 import AccountBalances from './components/accountBalances';
 import { api } from "./apis/apiCalls";
@@ -108,6 +109,13 @@ function App() {
     )
   }
 
+  const ProfileDisplay = () => {
+    return (
+      <Profile
+      />
+    )
+  }
+
   let accountBalances = () => {
     return (
       <AccountBalances 
@@ -138,6 +146,12 @@ function App() {
                           borderBottomWidth: 2,
                           color: "rgb(238, 238, 238)"
                         }} to="/admin">Admin</NavLink></li>
+            <li><NavLink activeStyle={{
+                          fontWeight: "bold",
+                          borderBottomColor: "rgb(74, 88, 146)",
+                          borderBottomWidth: 2,
+                          color: "rgb(238, 238, 238)"
+                        }} to="/profile">Profile</NavLink></li>
             <li><NavLink activeStyle={{
                           fontWeight: "bold",
                           borderBottomColor: "rgb(74, 88, 146)",
@@ -178,6 +192,7 @@ function App() {
           <Route path="/register" exact render={Register} />
           <Route path="/login" exact render={ (props) => <Login {...props}  handleLogin={handleLogin} /> } />
           <PrivateRoute path="/orders" exact render={()=>OrdersDisplay()} />
+          <PrivateRoute path="/profile" exact render={()=>ProfileDisplay()} />
           <Route path="/about" exact component={About} />
           <Route path="/admin" exact component={Admin} />
           <br /><br /><br />

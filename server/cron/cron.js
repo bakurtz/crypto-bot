@@ -57,14 +57,11 @@ const set = exports.set = (config, token) => {
             newTask = cron.schedule(config.cronValue, () =>  {
                 placeOrder(config.id, config.limitOrderDiff, config.buySize, config.buyType, config.email);
             });
-            cronArray.push({id: config.id, task: newTask, schedule: config.cronValue, email: config.email})
-            console.log("New cron set for "+config.id+": "+config.cronValue)
-            let log = new Log.model({type: "Crypto-bot enabled", message: "Crypto-bot enabled with cron: "+config.cronValue,logLevel: "info", data: config.cronValue})
-            log.save( err => { if(err) console.log(err) })
-            //CHECK ARRAY
+            cronArray.push({id: config.id, task: newTask, schedule: config.cronValue, email: config.email});
+            Logger("Crypto-bot enabled", "Crypto-bot enabled with cron: "+config.cronValue,"info", config.cronValue, config.email);
             console.log("~~~CronArray has been Updated:")
             cronArray.forEach(c=>{
-                console.log(c.id,c.schedule,c.task.getStatus())
+                console.log(c.id,c.schedule,c.task.getStatus());
             })
             console.log("~~~")
         }
@@ -79,13 +76,9 @@ const set = exports.set = (config, token) => {
         for(let i = cronArray.length-1; i>=0; i--){
             if(cronArray[i].id == config.id) {
                 cronArray[i].task.destroy();
-                cronArray.splice(i,1)
-                let log = new Log.model(
-                    {type: "Disabled schedule", message: "Disabled "+config.id,logLevel: "info", data: config.cronValue}
-                )
-                log.save( err => {
-                    if(err) console.log(err)
-                })
+                cronArray.splice(i,1);
+                //type, message, logLevel, data, email
+                Logger("Disabled schedule","Disabled "+config.id,"info",config.cronValue);
             }
         }
         console.log("~~~CronArray has been Updated:")

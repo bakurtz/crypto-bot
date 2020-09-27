@@ -5,7 +5,7 @@ const AuthorizationController = require('../authorization/controllers/authorizat
 
 exports.routesConfig = function (app) {
     app.post('/users', [
-        ValidationMiddleware.noUsersExist,
+        //ValidationMiddleware.noUsersExist,
         UsersController.insert,
         AuthorizationController.login
     ]);
