@@ -2,13 +2,13 @@
 
 > :warning: **This app is designed to be self-hosted so that you never need to give anyone your CBP API keys**: Use at your own risk!
 
-Crypto-bot is an open sourced app built with the idea of dollar-cost-averaging investments into Bitcoin. This app uses the Coinbase Pro (CBP) API to provide features and data not available via the CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. Using Crypto-bot, you can acheive much lower transaction fees than through other recurring-buy services (e.g. Swan, Coinbase standard, etc.).
+Crypto-bot is an open source app built with the idea of dollar-cost-averaging investments into Bitcoin. This app uses the Coinbase Pro (CBP) API to provide features and data not available via the CBP web interface, including the ability to schedule recurring orders at customizable limit prices and intervals. Using Crypto-bot, you can achieve much lower transaction fees than through other recurring-buy services (e.g. Swan, Coinbase standard, etc.).
   
 Please use at your own risk, and never share your API keys.
 
 
 <img src="http://g.recordit.co/XHwASNetDH.gif"
-     alt="App overveiw"
+     alt="App overview"
      style="margin-right: 0 auto; max-width: 80%" />  
   
 
